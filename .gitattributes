@@ -1,0 +1,15 @@
+# Normalize line endings across Windows / Linux / macOS checkouts.
+# Forces shell scripts and Docker / nginx config to LF so they're executable
+# inside the Linux container regardless of the host OS the code was edited on.
+
+* text=auto eol=lf
+
+# Scripts and infra config — MUST be LF
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.conf      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+
+# Lockfiles — leave as-is to avoid noisy diffs
+package-lock.json -text

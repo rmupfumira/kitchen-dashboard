@@ -1,0 +1,62 @@
+/* ============================================================
+   Global resets + base body styling.
+   IMPORTANT: @import must come FIRST per CSS spec; Tailwind
+   directives are picked up at build time and don't conflict.
+   ============================================================ */
+
+@import "./tokens.css";
+@import "./animations.css";
+@import "./shell.css";
+@import "./widgets.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  /* Warm radial+linear background — establishes the glass-on-canvas mood. */
+  background:
+    radial-gradient(1200px 700px at 78% -8%, var(--bg-2), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, var(--bg-3), transparent 55%),
+    linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  height: 100vh;
+}
+
+::selection {
+  background: var(--amber-soft);
+  color: var(--ink);
+}
+
+/* Subtle warm-tinted scrollbars so panels can scroll without breaking the mood. */
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(150, 130, 90, 0.28);
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

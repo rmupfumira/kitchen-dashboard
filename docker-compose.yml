@@ -1,0 +1,37 @@
+# ──────────────────────────────────────────────────────────────
+# docker-compose.yml — for Portainer Stacks (Git-deployment friendly).
+#
+# Drop this repo URL into Portainer → Stacks → "Add stack" → Git repository,
+# point it at this file. Portainer will pull on every push and rebuild.
+#
+# Local usage:  ./deploy.sh   (or:  docker compose up -d --build)
+# ──────────────────────────────────────────────────────────────
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dashboard-react:latest
+    container_name: dashboard-react
+    restart: unless-stopped
+    ports:
+      - "${DASHBOARD_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-Africa/Johannesburg}
+    networks:
+      - homelab
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      # ── Traefik (optional) — uncomment if you route via Traefik
+      # - "traefik.enable=true"
+      # - "traefik.http.routers.dashboard.rule=Host(`dashboard.home.lan`)"
+      # - "traefik.http.routers.dashboard.entrypoints=web"
+      # - "traefik.http.services.dashboard.loadbalancer.server.port=80"
+
+networks:
+  homelab:
+    # If you already have a shared homelab network created by another stack,
+    # uncomment the next two lines instead of creating a new one.
+    # external: true
+    # name: homelab
+    driver: bridge
