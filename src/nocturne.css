@@ -1442,6 +1442,95 @@ body::before {
   box-shadow: 0 0 10px color-mix(in oklch, var(--argon) 50%, transparent);
 }
 
+/* ─── offline overlay ─────────────────────────────────────── */
+.offline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in oklch, var(--void) 75%, transparent);
+  backdrop-filter: blur(6px) saturate(0.9);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+  animation: toast-rise 0.25s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.offline-panel {
+  max-width: 460px;
+  width: 100%;
+  padding: 28px;
+  background: var(--panel);
+  border: 1px solid var(--alert);
+  border-radius: var(--r-lg);
+  box-shadow:
+    var(--shadow-pop),
+    0 0 0 1px color-mix(in oklch, var(--alert) 35%, transparent),
+    0 0 28px color-mix(in oklch, var(--alert) 22%, transparent);
+  text-align: center;
+}
+.offline-ic {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  color: var(--alert);
+  background: color-mix(in oklch, var(--alert) 12%, transparent);
+  border: 1px solid color-mix(in oklch, var(--alert) 30%, transparent);
+}
+.offline-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-top: 10px;
+}
+.offline-sub {
+  font-size: 13.5px;
+  color: var(--ink-mute);
+  font-weight: 500;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.offline-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: var(--void-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+.offline-meta code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+}
+.offline-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: var(--argon);
+  color: var(--void);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 0 18px color-mix(in oklch, var(--argon) 35%, transparent);
+  transition: transform 0.15s;
+}
+.offline-retry:hover {
+  transform: translateY(-1px);
+}
+
 /* ─── responsive ──────────────────────────────────────────── */
 @media (max-width: 880px) {
   .app {

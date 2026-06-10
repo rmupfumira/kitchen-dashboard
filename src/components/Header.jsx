@@ -6,14 +6,28 @@ import Led from "./Led";
 
 /**
  * Header — clock · greet · search · theme/bell/avatar.
- * The clock ticks every second; everything else is push-from-parent.
+ *
+ * Connection state is reflected in the LED + sysline:
+ *   connected  → green LED, pulsing, "{room} // all systems nominal"
+ *   connecting → amber LED, pulsing, "Linking to home assistant…"
+ *   error      → red LED, "Home assistant offline"
+ *   demo       → amber LED, "Demo mode // mock data"
  */
+const STATUS_COPY = {
+  connected: { tone: "on", text: (room) => `${room} // all systems nominal` },
+  connecting: { tone: "warn", text: () => "Linking to home assistant…" },
+  error: { tone: "alert", text: () => "Home assistant offline" },
+  idle: { tone: "warn", text: () => "Linking to home assistant…" },
+  demo: { tone: "warn", text: () => "Demo mode // mock data" },
+};
+
 export default function Header({
   roomName,
   query,
   onQuery,
   dark,
   onToggleTheme,
+  haStatus = "demo",
 }) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -25,6 +39,8 @@ export default function Header({
   const hm = t.slice(0, 5);
   const ss = t.slice(6);
 
+  const stat = STATUS_COPY[haStatus] || STATUS_COPY.demo;
+
   return (
     <header className="header">
       <div className="clock">
@@ -35,8 +51,8 @@ export default function Header({
       <div className="greet">
         <h1>NOCTURNE</h1>
         <div className="sysline">
-          <Led tone="on" pulse />
-          <span className="mlabel">{roomName} // all systems nominal</span>
+          <Led tone={stat.tone} pulse={haStatus !== "connected" ? false : true} />
+          <span className="mlabel">{stat.text(roomName)}</span>
         </div>
       </div>
 

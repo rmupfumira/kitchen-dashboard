@@ -1,28 +1,37 @@
 # ──────────────────────────────────────────────────────────────
-# Multi-stage build for the Smart Home Dashboard.
-# Stage 1 builds the Vite bundle on Node 20-alpine.
-# Stage 2 serves the static output with nginx-alpine — tiny image,
-# fast cold start, perfect for Portainer / homelab deployment.
+# Multi-stage build for NOCTURNE.
+# Stage 1: Node 20-alpine builds the Vite bundle.
+# Stage 2: nginx-alpine serves the static dist/ — tiny + fast cold start.
+#
+# Build-time secrets:
+#   VITE_HA_URL    — Home Assistant base URL (e.g. http://192.168.1.141:8123)
+#   VITE_HA_TOKEN  — long-lived access token
+# Vite inlines these at build time, so they MUST be passed as --build-arg
+# (or `args:` in docker-compose / Portainer stack env vars).
 # ──────────────────────────────────────────────────────────────
 
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copy manifests first so npm-install caches as a separate layer.
+# Cache deps separately from source.
 COPY package.json package-lock.json* ./
 RUN npm ci --no-audit --no-fund
 
-# Then the rest of the source and produce the dist/ bundle.
+# Receive HA credentials and expose them to the Vite build.
+ARG VITE_HA_URL
+ARG VITE_HA_TOKEN
+ENV VITE_HA_URL=$VITE_HA_URL
+ENV VITE_HA_TOKEN=$VITE_HA_TOKEN
+
 COPY . .
 RUN npm run build
 
 # ──────────────────────────────────────────────────────────────
 FROM nginx:1.27-alpine
-LABEL org.opencontainers.image.title="dashboard-react"
-LABEL org.opencontainers.image.description="Family smart-home dashboard (Vite + React)"
-LABEL org.opencontainers.image.source="https://github.com/your-user/dashboard-react"
+LABEL org.opencontainers.image.title="nocturne"
+LABEL org.opencontainers.image.description="NOCTURNE — smart-home command-deck dashboard"
+LABEL org.opencontainers.image.source="https://github.com/rmupfumira/kitchen-dashboard"
 
-# Custom config: SPA fallback + sensible caching headers.
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 

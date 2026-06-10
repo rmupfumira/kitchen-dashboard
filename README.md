@@ -73,10 +73,51 @@ cp .env.example .env
 1. **Card entrance is transform-only.** The cards rise on mount but their visible end state is the base style, never `opacity: 0 → 1`. Several hero cards re-render every second (clock, energy flicker, music progress); animating opacity would restart the animation each tick and pin the card invisible.
 2. **Transitions are suppressed during theme flip.** Chromium can latch theme-derived properties mid-transition, leaving elements stuck at the old colour. The theme toggle disables `transition` for two animation frames, swaps `data-theme` + accent, then re-enables.
 
-## What works today
+## Home Assistant wiring
 
-Mock-data only. Every interaction is real (toggles, steppers, scene activation, music transport, doorbell unlock, search filter, room switching, live clock, energy flicker, theme + accent persistence) but state is in-memory.
+Live state via `home-assistant-js-websocket`. The HA layer lives in `src/ha/`:
 
-## Phase 4 — real Home Assistant wiring
+| File | Purpose |
+|---|---|
+| `client.js` | Reads `VITE_HA_URL` / `VITE_HA_TOKEN` (inlined at build time), opens a long-lived-token WebSocket connection |
+| `HaContext.jsx` | React provider — tracks status (`connecting` / `connected` / `error`), exposes `useHA()`, `useEntity(id)`, `useEntities(...ids)` |
+| `entityMap.js` | **Single source of truth** for which HA entities feed which NOCTURNE slot. Edit this to map your instance. |
+| `mappers.js` | Pure functions: `weather.*` → WeatherShape, power sensors → InverterShape, alarm + cover → SecurityShape, doorbell flag → DoorbellShape |
+| `callService.js` | Thin wrapper for `conn.sendMessagePromise({ type: "call_service", … })` |
 
-Pending. The hooks shape (`devices`, `climate`, `security`, `inverter`) already mirrors HA entity payloads, so the swap is local to App.jsx — every component stays untouched.
+### What's already mapped
+
+| NOCTURNE slot | HA entity (default in `entityMap.js`) |
+|---|---|
+| Weather card | `weather.pirateweather` |
+| Power flow card | `sensor.pv_power` / `sensor.battery_state_of_charge` / `sensor.grid_power` / `sensor.load_power` |
+| Garage / Front Gate access | `cover.garage_door_z2m` / `cover.centurion_gate_gate` (toggling fires `cover.open_cover` / `cover.close_cover`) |
+| Outdoor / Indoor alarm | `alarm_control_panel.partition_outdoor` / `_indoor` (fires `alarm_arm_away` / `alarm_disarm`) |
+| Doorbell ringing | `input_boolean.doorbell_ringing` (fallback: doorbell camera recording state) |
+| Unlock button | `lock.front_door_lock` (fires `lock.unlock`) |
+
+### What still uses mock data
+
+- Climate card per room (needs `climate.*` entities mapped per NOCTURNE room id)
+- Device grid (needs `light.*` / `switch.*` / `media_player.*` per room)
+- Music card (needs a `media_player.*`)
+- Scenes (optionally fires `scene.turn_on` / `script.turn_on` if mapped)
+
+Open `src/ha/entityMap.js`, slot in the entity IDs, rebuild. Every component picks up live data automatically.
+
+### Connection state in the UI
+
+- Header LED + sysline reflect status: green pulsing (connected), amber (connecting), red (offline).
+- A full-screen overlay appears on disconnect with the endpoint URL + retry button. The library auto-retries every ~8 s.
+- Offline-mode actions (toggling a switch, opening the garage) still respond visually so the wall panel doesn't feel dead.
+
+### Configure tokens
+
+Generate a long-lived token: **HA → your user profile → bottom of page → Create token**.
+
+```bash
+cp .env.example .env
+# edit .env — set VITE_HA_URL and VITE_HA_TOKEN
+```
+
+For Docker / Portainer deploys, set the same two env vars on the stack — they're forwarded to the build via `docker-compose.yml` `args:` and baked into the bundle.

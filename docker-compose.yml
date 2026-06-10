@@ -1,18 +1,27 @@
 # ──────────────────────────────────────────────────────────────
-# docker-compose.yml — for Portainer Stacks (Git-deployment friendly).
+# docker-compose.yml — Portainer-Stack ready.
 #
-# Drop this repo URL into Portainer → Stacks → "Add stack" → Git repository,
-# point it at this file. Portainer will pull on every push and rebuild.
+# Portainer → Stacks → Add stack → Web editor (paste this) OR Git repository.
+# Define the four env vars in the stack's "Environment variables" panel:
 #
-# Local usage:  ./deploy.sh   (or:  docker compose up -d --build)
+#   VITE_HA_URL=http://192.168.1.141:8123
+#   VITE_HA_TOKEN=eyJhbGciOiJI…
+#   DASHBOARD_PORT=8080
+#   TZ=Africa/Johannesburg
+#
+# Local CLI:  ./deploy.sh   (sources .env automatically)
 # ──────────────────────────────────────────────────────────────
 services:
-  dashboard:
+  nocturne:
     build:
       context: .
       dockerfile: Dockerfile
-    image: dashboard-react:latest
-    container_name: dashboard-react
+      # Build-time secrets — Vite inlines these into the JS bundle.
+      args:
+        VITE_HA_URL: ${VITE_HA_URL:-}
+        VITE_HA_TOKEN: ${VITE_HA_TOKEN:-}
+    image: nocturne:latest
+    container_name: nocturne
     restart: unless-stopped
     ports:
       - "${DASHBOARD_PORT:-8080}:80"
@@ -22,16 +31,7 @@ services:
       - homelab
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
-      # ── Traefik (optional) — uncomment if you route via Traefik
-      # - "traefik.enable=true"
-      # - "traefik.http.routers.dashboard.rule=Host(`dashboard.home.lan`)"
-      # - "traefik.http.routers.dashboard.entrypoints=web"
-      # - "traefik.http.services.dashboard.loadbalancer.server.port=80"
 
 networks:
   homelab:
-    # If you already have a shared homelab network created by another stack,
-    # uncomment the next two lines instead of creating a new one.
-    # external: true
-    # name: homelab
     driver: bridge
