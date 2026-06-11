@@ -611,7 +611,8 @@ body::after {
 .db-feed {
   position: relative;
   flex: 1;
-  min-height: 220px; /* don't let the camera disappear on tiny screens */
+  min-height: 200px;
+  max-height: 360px; /* cap so the hero stays a banner, not the whole viewport */
   background: linear-gradient(135deg, #1a1a26, #0a0a10);
   overflow: hidden;
 }
@@ -723,13 +724,15 @@ body::after {
 .db-btn.ghost { flex: 0 0 46px; color: var(--ink-mute); }
 
 /* ─── Security card ─────────────────────────────────────── */
-.security-list { display: flex; flex-direction: column; gap: 10px; }
+/* Tightened proportions so the card stays under ~480px and the doorbell
+   camera doesn't get dragged up to match a tall right column. */
+.security-list { display: flex; flex-direction: column; gap: 6px; }
 .sec-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
   background: var(--recess-1);
   border: 1px solid var(--card-line);
   cursor: pointer;
@@ -743,9 +746,9 @@ body::after {
   box-shadow: 0 0 18px rgba(155, 77, 255, 0.15);
 }
 .sec-ic {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
   background: var(--recess-2);
@@ -758,11 +761,11 @@ body::after {
   color: #fff;
 }
 .sec-meta { flex: 1; min-width: 0; }
-.sec-name { font-size: 13.5px; font-weight: 600; letter-spacing: -0.005em; }
+.sec-name { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
 .sec-state {
-  margin-top: 2px;
+  margin-top: 1px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -771,20 +774,20 @@ body::after {
 .sec-row.on .sec-state, .sec-row.armed .sec-state { color: #fff; opacity: 0.85; }
 .sec-unavail { opacity: 0.4; pointer-events: none; }
 .sec-section-title {
-  margin-top: 14px;
-  margin-bottom: 6px;
+  margin-top: 10px;
+  margin-bottom: 4px;
 }
 .secure-home-btn {
   width: 100%;
-  margin-top: 12px;
-  padding: 14px 18px;
-  border-radius: 14px;
+  margin-top: 10px;
+  padding: 11px 16px;
+  border-radius: 12px;
   border: none;
   background: var(--grad-blue);
   color: #001a26;
   font-family: var(--font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
