@@ -20,7 +20,7 @@ function SecItem({ Icon, name, status, alerting, unavail, onClick }) {
       }}
     >
       <div className="sec-item-ic">
-        <Icon size={16} strokeWidth={2} />
+        <Icon size={19} strokeWidth={2} />
       </div>
       <div className="sec-item-meta">
         <div className="sec-item-n">{name}</div>

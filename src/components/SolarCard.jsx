@@ -61,25 +61,25 @@ export default function SolarCard() {
 
       <div className="solar-stats">
         <div className="sstat">
-          <Sun className="ic" size={17} strokeWidth={2} color="var(--gold)" />
+          <Sun className="ic" size={21} strokeWidth={2} color="var(--gold)" />
           <span className="v tabular">{f1(pvKw)}<span className="u">kW</span></span>
           <span className="k">PV Power</span>
           <span className="sub">{f1(num(pvToday, 0))} kWh today</span>
         </div>
         <div className="sstat">
-          <House className="ic" size={17} strokeWidth={2} color="var(--ink-soft)" />
+          <House className="ic" size={21} strokeWidth={2} color="var(--ink-soft)" />
           <span className="v tabular">{f1(loadKw)}<span className="u">kW</span></span>
           <span className="k">Load</span>
           <span className="sub">{f1(num(loadToday, 0))} kWh today</span>
         </div>
         <div className="sstat">
-          <UtilityPole className="ic" size={17} strokeWidth={2} color={importing ? "var(--warning)" : exporting ? "var(--success)" : "var(--ink-mute)"} />
+          <UtilityPole className="ic" size={21} strokeWidth={2} color={importing ? "var(--warning)" : exporting ? "var(--success)" : "var(--ink-mute)"} />
           <span className="v tabular">{f1(gridKw)}<span className="u">kW</span></span>
           <span className="k">{importing ? "Importing" : exporting ? "Exporting" : "Grid"}</span>
           <span className="sub">{importing ? "from grid" : exporting ? "to grid" : "standby"}</span>
         </div>
         <div className="sstat">
-          <battVis.Icon className="ic" size={17} strokeWidth={2} color={battVis.color} />
+          <battVis.Icon className="ic" size={21} strokeWidth={2} color={battVis.color} />
           <span className="v tabular">{Number.isFinite(socPct) ? Math.round(socPct) : "—"}<span className="u">%</span></span>
           <span className="k">Battery</span>
           <span className="sub">{charging ? `+${f1(battKw)} kW` : battKw < -0.05 ? `−${f1(battKw)} kW` : "holding"}</span>

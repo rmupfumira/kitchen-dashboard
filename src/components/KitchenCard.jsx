@@ -42,7 +42,7 @@ function Tile({ name, entity, Icon, big = false, onToast }) {
         <Power size={14} strokeWidth={2.2} color={on ? "var(--gold)" : "var(--ink-faint)"} />
       </span>
       <div className="klx-ic">
-        <Icon size={big ? 20 : 17} strokeWidth={2} />
+        <Icon size={big ? 26 : 22} strokeWidth={2} />
       </div>
       <div className="klx-n">{name}</div>
       <div className="klx-s">{unavail ? "Offline" : dimmable ? (on ? `${pct}%` : "Off") : on ? "On" : "Off"}</div>
