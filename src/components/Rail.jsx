@@ -1,42 +1,61 @@
-import { HousePlug, LayoutDashboard, Zap, Cpu, Mic, BarChart3, Cctv, Settings } from "lucide-react";
+import { ChefHat, Sofa, BedDouble, Briefcase, Users, Trees, LayoutGrid, Settings, RefreshCw } from "lucide-react";
 
 /**
- * Floating capsule rail — fixed left-side 92px wide.
- * The non-Home buttons are decorative for now; clicking them fires a toast
- * via the parent's onPick callback.
+ * Room-nav rail (left). Kitchen is the live view; other rooms fire a toast
+ * until their views exist. Bottom: hard-reload + settings.
  */
-const ITEMS = [
-  { id: "home", Icon: LayoutDashboard, label: "Home" },
-  { id: "energy", Icon: Zap, label: "Energy" },
-  { id: "devices", Icon: Cpu, label: "Devices" },
-  { id: "voice", Icon: Mic, label: "Voice" },
-  { id: "stats", Icon: BarChart3, label: "Stats" },
-  { id: "cameras", Icon: Cctv, label: "Cameras" },
+const ROOMS = [
+  { id: "kitchen", Icon: ChefHat, label: "Kitchen" },
+  { id: "living", Icon: Sofa, label: "Living" },
+  { id: "master", Icon: BedDouble, label: "Master" },
+  { id: "office", Icon: Briefcase, label: "Office" },
+  { id: "guest", Icon: Users, label: "Guest" },
+  { id: "outdoor", Icon: Trees, label: "Outdoor" },
+  { id: "all", Icon: LayoutGrid, label: "All" },
 ];
+
+async function hardReload() {
+  try {
+    if ("caches" in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map((n) => caches.delete(n)));
+    }
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+  } catch {
+    /* best-effort */
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set("_nc", String(Date.now()));
+  window.location.replace(url.toString());
+}
 
 export default function Rail({ view, onPick }) {
   return (
-    <nav className="rail">
-      <div className="rail-logo" aria-hidden="true">
-        <HousePlug size={22} strokeWidth={2} />
-      </div>
-      {ITEMS.map(({ id, Icon, label }) => (
+    <nav className="lux-rail">
+      {ROOMS.map(({ id, Icon, label }) => (
         <button
           key={id}
           type="button"
-          className={"rail-btn" + (view === id ? " active" : "")}
+          className={"rail-item" + (view === id ? " active" : "")}
           onClick={() => onPick(id, label)}
           aria-label={label}
-          title={label}
         >
-          <Icon size={20} strokeWidth={2} />
+          <Icon size={21} strokeWidth={2} />
+          <span>{label}</span>
         </button>
       ))}
       <div className="rail-spacer" />
-      <button type="button" className="rail-btn" aria-label="Settings" title="Settings">
-        <Settings size={20} strokeWidth={2} />
+      <button type="button" className="rail-item" onClick={hardReload} aria-label="Refresh" title="Hard reload">
+        <RefreshCw size={18} strokeWidth={2} />
+        <span>Refresh</span>
       </button>
-      <div className="rail-avatar" aria-hidden="true">W</div>
+      <button type="button" className="rail-item" aria-label="Settings">
+        <Settings size={19} strokeWidth={2} />
+        <span>Settings</span>
+      </button>
     </nav>
   );
 }

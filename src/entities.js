@@ -57,6 +57,13 @@ export const ENTITIES = {
   /* ─── Weather ────────────────────────────────────────────── */
   weather: "weather.pirateweather",
 
+  /* ─── Cameras (3 large previews) ─────────────────────────── */
+  cameras: [
+    { id: "doorbell", name: "Front Door", entity: "camera.doorbell_frigate" },
+    { id: "pool", name: "Swimming Pool", entity: "camera.swimming_pool_frigate" },
+    { id: "garage", name: "Garage", entity: "camera.garage_cam_frigate" },
+  ],
+
   /* ─── Kitchen lighting ───────────────────────────────────── */
   /* WLED strips: placeholder IDs — rename these once the 6 strips are
      flashed + named in the WLED integration. Until then the tiles render

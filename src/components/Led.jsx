@@ -1,6 +1,6 @@
 /**
- * 7px status LED. Tones: default · on · alert · warn · success · info.
- * Set `pulse` for live heartbeat.
+ * 8px status LED. Tones: default · gold · success · warning · critical.
+ * Set `pulse` for the heartbeat animation.
  */
 export default function Led({ tone = "default", pulse = false }) {
   const cls = ["led"];

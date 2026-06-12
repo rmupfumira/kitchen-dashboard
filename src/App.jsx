@@ -1,76 +1,69 @@
 import { useRef, useState } from "react";
 import { useHA } from "./ha/HaContext";
-import { usePersistentNotifications } from "./ha/usePersistentNotifications";
 import Rail from "./components/Rail";
-import Header from "./components/Header";
-import Toast from "./components/Toast";
-import OfflineOverlay from "./components/OfflineOverlay";
-import AlertsCard from "./components/AlertsCard";
-import ClockCard from "./components/ClockCard";
-import WeatherCard from "./components/WeatherCard";
+import TopClock from "./components/TopClock";
+import TopWeather from "./components/TopWeather";
+import TopAlerts from "./components/TopAlerts";
 import SecurityCard from "./components/SecurityCard";
-import SolarTiles from "./components/SolarTiles";
-import ScenesCard from "./components/ScenesCard";
+import KitchenCard from "./components/KitchenCard";
+import CamerasCard from "./components/CamerasCard";
+import SolarCard from "./components/SolarCard";
 import MediaCard from "./components/MediaCard";
 import ClimateCard from "./components/ClimateCard";
-import LampCard from "./components/LampCard";
-import KitchenCard from "./components/KitchenCard";
+import ScenesBar from "./components/ScenesBar";
+import Toast from "./components/Toast";
+import OfflineOverlay from "./components/OfflineOverlay";
 
 /**
- * Aurora dashboard root.
+ * Luxury Gold kitchen command center.
  *
- * Layout (per spec):
- *   Row 1  Alerts                                       (span 12)
- *   Row 2  Doorbell (span 8)        Security (span 4)
- *   Row 3  Solar 4-tile                                 (span 12)
- *   Row 4  Media (span 5)  AC (span 4)  Lamp (span 3)
- *
- * The Rail's non-Home buttons only fire a toast for now — those views are
- * out of scope (explicitly per spec).
+ * Single screen, no scrolling — the shell grid divides 100vh:
+ *   TOP:    Clock (320) · Weather+forecast (flex) · Alerts (380)
+ *   MID:    Security (320) · Kitchen Lighting hero (flex) · Cameras (380)
+ *   LOWER:  Solar+flow · Media · Air Conditioner
+ *   FOOTER: Scenes bar
  */
 export default function App() {
   const { status, error, retry } = useHA();
-  const { items: notifs } = usePersistentNotifications();
-  const [view, setView] = useState("home");
+  const [view, setView] = useState("kitchen");
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
 
   const fireToast = (icon, msg) => {
     setToast({ icon, msg });
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2400);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
   };
 
   const railPick = (id, label) => {
-    if (id === "home") {
-      setView(id);
-    } else {
-      fireToast("sparkles", `${label} — coming soon`);
-    }
+    if (id === "kitchen") setView(id);
+    else fireToast("sparkles", `${label} — coming soon`);
   };
 
   return (
-    <div className="app">
+    <div className="lux-app">
       <Rail view={view} onPick={railPick} />
 
-      <div className="main">
-        <Header haStatus={status} notifCount={notifs.length} />
-
-        <div className="board">
-          <div className="grid">
-            <AlertsCard />
-            <ClockCard />
-            <WeatherCard />
-            <SecurityCard onToast={fireToast} />
-            <SolarTiles />
-            <ScenesCard onToast={fireToast} />
-            <MediaCard onToast={fireToast} />
-            <ClimateCard onToast={fireToast} />
-            <LampCard onToast={fireToast} />
-
-            <KitchenCard onToast={fireToast} />
-          </div>
+      <div className="lux-main">
+        <div className="lux-top">
+          <TopClock />
+          <TopWeather />
+          <TopAlerts />
         </div>
+
+        <div className="lux-mid">
+          <SecurityCard onToast={fireToast} />
+          <KitchenCard onToast={fireToast} />
+          <CamerasCard />
+        </div>
+
+        <div className="lux-low">
+          <SolarCard />
+          <MediaCard onToast={fireToast} />
+          <ClimateCard onToast={fireToast} />
+        </div>
+
+        <ScenesBar onToast={fireToast} />
       </div>
 
       <Toast toast={toast} />
