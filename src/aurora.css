@@ -1691,6 +1691,170 @@ body::after {
   text-align: right;
 }
 
+/* ─── Kitchen lighting card ─────────────────────────────── */
+.kitchen-body {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 14px;
+}
+.kstrip-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+.kstrip {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--recess-1);
+  border: 1px solid var(--card-line);
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+.kstrip.on {
+  border-color: rgba(255, 196, 107, 0.4);
+  background:
+    radial-gradient(180px 100px at 50% 0%, rgba(255, 196, 107, 0.08), transparent 70%),
+    var(--recess-1);
+}
+.kstrip.unavail { opacity: 0.4; }
+.kstrip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.kstrip-ic {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--recess-2);
+  color: var(--ink-mute);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.kstrip.on .kstrip-ic {
+  color: #ffc46b;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 196, 107, 0.3), transparent 65%),
+    var(--recess-2);
+  box-shadow: 0 0 14px rgba(255, 196, 107, 0.25);
+}
+/* smaller switch inside strip tiles */
+.kstrip .switch { transform: scale(0.82); transform-origin: right center; }
+.kstrip-name {
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kstrip-state {
+  margin-top: 1px;
+  font-size: 9px;
+}
+.kstrip-slider {
+  margin-top: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #ffc46b var(--vp, 50%), rgba(255, 255, 255, 0.08) var(--vp, 50%));
+  outline: none;
+  cursor: pointer;
+}
+.kstrip-slider:disabled { opacity: 0.35; cursor: default; }
+.kstrip-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffc46b;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 196, 107, 0.6);
+}
+.kstrip-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffc46b;
+  border: none;
+  cursor: pointer;
+}
+
+.ksw-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ksw {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--recess-1);
+  border: 1px solid var(--card-line);
+  cursor: pointer;
+  transition: all 0.18s;
+  flex: 1;
+}
+.ksw:hover { border-color: var(--card-line-hi); }
+.ksw.on {
+  border-color: rgba(255, 196, 107, 0.4);
+  background:
+    radial-gradient(220px 80px at 0% 50%, rgba(255, 196, 107, 0.08), transparent 70%),
+    var(--recess-1);
+}
+.ksw.unavail { opacity: 0.4; pointer-events: none; }
+.ksw-ic {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--recess-2);
+  color: var(--ink-mute);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.ksw.on .ksw-ic {
+  color: #ffc46b;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 196, 107, 0.3), transparent 65%),
+    var(--recess-2);
+  box-shadow: 0 0 14px rgba(255, 196, 107, 0.25);
+}
+.ksw-meta { flex: 1; min-width: 0; }
+.ksw-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.ksw-state {
+  margin-top: 1px;
+  font-size: 9px;
+}
+
+@media (max-width: 1100px) {
+  .kitchen-body { grid-template-columns: 1fr; }
+  .kstrip-grid { grid-template-columns: repeat(3, 1fr); }
+  .span-kitchen { grid-column: span 8 !important; }
+}
+@media (max-width: 720px) {
+  .kstrip-grid { grid-template-columns: repeat(2, 1fr); }
+  .span-kitchen { grid-column: span 4 !important; }
+}
+
 /* ─── Toast ─────────────────────────────────────────────── */
 .toast-wrap {
   position: fixed;

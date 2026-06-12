@@ -57,6 +57,26 @@ export const ENTITIES = {
   /* ─── Weather ────────────────────────────────────────────── */
   weather: "weather.pirateweather",
 
+  /* ─── Kitchen lighting ───────────────────────────────────── */
+  /* WLED strips: placeholder IDs — rename these once the 6 strips are
+     flashed + named in the WLED integration. Until then the tiles render
+     in the muted "unavailable" state. WLED creates light.<device_name>. */
+  kitchen: {
+    strips: [
+      { id: "s1", name: "Strip 1", entity: "light.kitchen_strip_1" },
+      { id: "s2", name: "Strip 2", entity: "light.kitchen_strip_2" },
+      { id: "s3", name: "Strip 3", entity: "light.kitchen_strip_3" },
+      { id: "s4", name: "Strip 4", entity: "light.kitchen_strip_4" },
+      { id: "s5", name: "Strip 5", entity: "light.kitchen_strip_5" },
+      { id: "s6", name: "Strip 6", entity: "light.kitchen_strip_6" },
+    ],
+    switches: [
+      { id: "pendant", name: "Pendant", icon: "lamp-ceiling", entity: "switch.kitchen_pendant" },
+      { id: "down", name: "Downlighters", icon: "lightbulb", entity: "switch.kitchen_downlighter" },
+      { id: "peninsula", name: "Peninsula", icon: "lightbulb", entity: "switch.kitchen_peninsula_downlighter" },
+    ],
+  },
+
   /* ─── Media · Climate · Lamp ─────────────────────────────── */
   media: "media_player.living_room_2",   // "Lounge TV" — LG WebOS
   climate: "climate.living_room_ac",     // "Living room AC"

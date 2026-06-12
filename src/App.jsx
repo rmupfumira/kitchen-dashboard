@@ -14,6 +14,7 @@ import ScenesCard from "./components/ScenesCard";
 import MediaCard from "./components/MediaCard";
 import ClimateCard from "./components/ClimateCard";
 import LampCard from "./components/LampCard";
+import KitchenCard from "./components/KitchenCard";
 
 /**
  * Aurora dashboard root.
@@ -66,6 +67,8 @@ export default function App() {
             <MediaCard onToast={fireToast} />
             <ClimateCard onToast={fireToast} />
             <LampCard onToast={fireToast} />
+
+            <KitchenCard onToast={fireToast} />
           </div>
         </div>
       </div>
