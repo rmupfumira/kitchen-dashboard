@@ -147,7 +147,7 @@ body::after {
 
 .mlabel {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -260,7 +260,7 @@ body::after {
   border: 1px solid var(--card-line);
   color: var(--ink-soft);
   font-family: var(--font);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -330,7 +330,7 @@ body::after {
   background: var(--card-bg);
   border: 1px solid var(--card-line);
   border-radius: var(--card-radius);
-  padding: 22px;
+  padding: 16px;
   box-shadow: var(--card-shadow);
   position: relative;
   overflow: hidden;
@@ -342,7 +342,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 .card-ic {
   width: 36px;
@@ -355,7 +355,7 @@ body::after {
   flex-shrink: 0;
 }
 .card-title {
-  font-size: 16px;
+  font-size: 17.5px;
   font-weight: 700;
   letter-spacing: -0.015em;
   color: var(--ink);
@@ -378,8 +378,8 @@ body::after {
 .app {
   display: grid;
   grid-template-columns: 92px 1fr;
-  gap: 22px;
-  padding: 22px;
+  gap: 14px;
+  padding: 14px;
   height: 100vh;
 }
 
@@ -463,7 +463,7 @@ body::after {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   overflow: hidden;
 }
 
@@ -475,7 +475,7 @@ body::after {
   flex-shrink: 0;
 }
 .greet h1 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.025em;
 }
@@ -499,7 +499,7 @@ body::after {
   font-family: var(--mono);
 }
 .clock-hm {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -526,7 +526,7 @@ body::after {
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px;
 }
 .grid > * { min-width: 0; }
 
@@ -580,11 +580,11 @@ body::after {
 .alert-row.info .alert-ic { color: var(--blue); }
 .alert-row.success .alert-ic { color: var(--green); }
 .alert-meta { flex: 1; min-width: 0; }
-.alert-title { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; }
+.alert-title { font-size: 15px; font-weight: 600; letter-spacing: -0.005em; }
 .alert-body {
   margin-top: 2px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-mute);
   letter-spacing: 0.06em;
 }
@@ -633,7 +633,7 @@ body::after {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 24px 26px;
+  padding: 18px 20px;
   background:
     radial-gradient(420px 280px at 0% 100%, rgba(56, 163, 255, 0.10), transparent 60%),
     var(--card-bg);
@@ -647,7 +647,7 @@ body::after {
 .cc-hm {
   font-family: var(--mono);
   font-weight: 700;
-  font-size: clamp(56px, 7.5vw, 100px);
+  font-size: clamp(64px, 8.5vw, 116px);
   letter-spacing: -0.05em;
   line-height: 0.85;
   font-variant-numeric: tabular-nums;
@@ -670,7 +670,7 @@ body::after {
 .weather-card {
   display: flex;
   flex-direction: column;
-  padding: 22px 24px;
+  padding: 16px 18px;
   background:
     radial-gradient(380px 260px at 100% 0%, rgba(56, 163, 255, 0.10), transparent 60%),
     radial-gradient(380px 260px at 0% 100%, rgba(155, 77, 255, 0.06), transparent 60%),
@@ -723,7 +723,7 @@ body::after {
 }
 .wc-cond {
   margin-top: 4px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--ink-mute);
 }
@@ -765,7 +765,7 @@ body::after {
 }
 .wc-stat-v {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -780,7 +780,7 @@ body::after {
 }
 .wc-stat-l {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -819,7 +819,7 @@ body::after {
 .wc-day-skel { opacity: 0.4; }
 .wc-day-name {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -827,7 +827,7 @@ body::after {
 }
 .wc-day-t {
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -1171,11 +1171,11 @@ body::after {
   color: #fff;
 }
 .sec-meta { flex: 1; min-width: 0; }
-.sec-name { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
+.sec-name { font-size: 14.5px; font-weight: 600; letter-spacing: -0.005em; }
 .sec-state {
   margin-top: 1px;
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1258,7 +1258,7 @@ body::after {
 }
 .solar-tile .label {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1269,7 +1269,7 @@ body::after {
 }
 .solar-tile .value {
   margin-top: 2px;
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
@@ -1287,7 +1287,7 @@ body::after {
 .solar-tile .sub {
   margin-top: 3px;
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 11px;
   color: var(--ink-mute);
   letter-spacing: 0.08em;
   white-space: nowrap;
@@ -1358,14 +1358,14 @@ body::after {
 }
 .scene-meta { flex: 1; min-width: 0; }
 .scene-name {
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.005em;
   color: var(--ink);
 }
 .scene-sub {
   margin-top: 1px;
-  font-size: 9px;
+  font-size: 10px;
 }
 .scene-row.on .scene-sub { color: rgba(255, 255, 255, 0.8); }
 
@@ -1373,8 +1373,8 @@ body::after {
 .media-top { display: flex; gap: 16px; align-items: center; }
 .media-art {
   position: relative;
-  width: 92px;
-  height: 92px;
+  width: 104px;
+  height: 104px;
   flex-shrink: 0;
   border-radius: 18px;
   overflow: hidden;
@@ -1418,7 +1418,7 @@ body::after {
 .media-device { display: flex; align-items: center; gap: 6px; }
 .media-title {
   margin-top: 2px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -1426,7 +1426,7 @@ body::after {
   text-overflow: ellipsis;
 }
 .media-artist {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-mute);
   white-space: nowrap;
   overflow: hidden;
@@ -1547,7 +1547,7 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
 .climate-dial-val {
-  font-size: 44px;
+  font-size: 50px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
@@ -1632,7 +1632,7 @@ body::after {
 }
 .lamp-name {
   text-align: center;
-  font-size: 14px;
+  font-size: 15.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -1747,7 +1747,7 @@ body::after {
 .kstrip .switch { transform: scale(0.82); transform-origin: right center; }
 .kstrip-name {
   margin-top: 8px;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.005em;
   color: var(--ink);
@@ -1835,7 +1835,7 @@ body::after {
 }
 .ksw-meta { flex: 1; min-width: 0; }
 .ksw-name {
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.005em;
   color: var(--ink);
