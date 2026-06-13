@@ -1,4 +1,4 @@
-import { ChefHat, Sofa, BedDouble, Briefcase, Users, Trees, LayoutGrid, Settings, RefreshCw } from "lucide-react";
+import { ChefHat, Sofa, BedDouble, Briefcase, Users, Trees, LayoutGrid, Settings, RefreshCw, Wifi } from "lucide-react";
 
 /**
  * Room-nav rail (left). Kitchen is the live view; other rooms fire a toast
@@ -32,7 +32,7 @@ async function hardReload() {
   window.location.replace(url.toString());
 }
 
-export default function Rail({ view, onPick }) {
+export default function Rail({ view, onPick, onWifi }) {
   return (
     <nav className="lux-rail">
       {ROOMS.map(({ id, Icon, label }) => (
@@ -48,6 +48,10 @@ export default function Rail({ view, onPick }) {
         </button>
       ))}
       <div className="rail-spacer" />
+      <button type="button" className="rail-item" onClick={onWifi} aria-label="Guest WiFi" title="Guest WiFi">
+        <Wifi size={20} strokeWidth={2} />
+        <span>WiFi</span>
+      </button>
       <button type="button" className="rail-refresh" onClick={hardReload} aria-label="Refresh" title="Hard reload">
         <RefreshCw size={26} strokeWidth={2.2} />
         <span>Refresh</span>

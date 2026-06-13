@@ -138,6 +138,13 @@ export const ENTITIES = {
     { id: "dryer", name: "Dryer", icon: "wind", entity: "input_select.dryer_state", finished: "input_datetime.dryer_finished_timestamp" },
   ],
 
+  /* ─── Guest WiFi (static — shown in a popup) ─────────────── */
+  guestWifi: {
+    ssid: "Mupfumira-GUEST",
+    password: "mupfumir@",
+    security: "WPA", // WPA/WPA2 — used to build the scan-to-join QR
+  },
+
   /* ─── Media · Lamp ───────────────────────────────────────── */
   media: "media_player.living_room_2",   // "Lounge TV" — LG WebOS
   lamp: "switch.kitchen_pendant",        // "Kitchen Pendant" (switch.* — toggle only)

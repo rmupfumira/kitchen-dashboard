@@ -1080,6 +1080,53 @@ body {
 .toast .ic { color: var(--gold); }
 @keyframes toast-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* ─── guest wifi modal ──────────────────────────────────── */
+.wifi-backdrop {
+  position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 24px;
+  background: rgba(7, 7, 7, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  animation: fade-in 0.2s ease both;
+}
+.wifi-modal {
+  position: relative;
+  width: 100%; max-width: 560px;
+  background: var(--surf-2);
+  border-radius: var(--r-xl);
+  box-shadow: var(--el-pop), 0 0 0 1px rgba(212, 175, 55, 0.18);
+  padding: 30px 34px 34px;
+  animation: toast-up 0.26s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.wifi-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 40px; height: 40px; border-radius: 12px; border: none;
+  background: var(--recess-2); color: var(--ink-soft); cursor: pointer; display: grid; place-items: center;
+}
+.wifi-close:hover { color: var(--ink); }
+.wifi-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.wifi-ic {
+  width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center;
+  background: linear-gradient(150deg, var(--gold), var(--gold-deep)); color: #1a1505;
+  box-shadow: var(--gold-glow-soft); flex-shrink: 0;
+}
+.wifi-title { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+.wifi-sub { font-size: 14px; font-weight: 500; color: var(--ink-mute); margin-top: 2px; }
+.wifi-body { display: flex; align-items: center; gap: 26px; }
+.wifi-qr {
+  width: 200px; height: 200px; border-radius: var(--r-md); flex-shrink: 0;
+  background: #f4f2ec; padding: 10px;
+}
+.wifi-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.wifi-field-l { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); }
+.wifi-field-v {
+  font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin-top: 5px;
+  word-break: break-word; line-height: 1.1;
+}
+.wifi-pw { display: flex; align-items: center; gap: 12px; color: var(--gold-bright); font-family: var(--mono); }
+.wifi-copy {
+  width: 38px; height: 38px; border-radius: 11px; border: none; flex-shrink: 0;
+  background: var(--recess-2); color: var(--ink-soft); cursor: pointer; display: grid; place-items: center;
+}
+.wifi-copy:hover { color: var(--gold); background: var(--gold-08); }
+
 /* ─── offline overlay ───────────────────────────────────── */
 .offline-overlay {
   position: fixed; inset: 0; z-index: 99; display: grid; place-items: center; padding: 24px;

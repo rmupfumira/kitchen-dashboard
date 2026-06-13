@@ -15,6 +15,7 @@ import SecurityControls from "./components/SecurityControls";
 import ScenesBar from "./components/ScenesBar";
 import LightingView from "./components/LightingView";
 import WeatherView from "./components/WeatherView";
+import GuestWifi from "./components/GuestWifi";
 import Toast from "./components/Toast";
 import OfflineOverlay from "./components/OfflineOverlay";
 
@@ -40,6 +41,7 @@ export default function App() {
   const [room, setRoom] = useState(roomFromPath); // "kitchen" | "living"
   const [subview, setSubview] = useState(null); // null | "lighting" | "weather"
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [wifiOpen, setWifiOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
 
@@ -75,7 +77,7 @@ export default function App() {
 
   return (
     <div className="lux-app">
-      <Rail view={subview ? "" : room} onPick={railPick} />
+      <Rail view={subview ? "" : room} onPick={railPick} onWifi={() => setWifiOpen(true)} />
 
       <div className="lux-main">
         {subview === "lighting" ? (
@@ -126,6 +128,7 @@ export default function App() {
       </div>
 
       <SecurityDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onToast={fireToast} />
+      <GuestWifi open={wifiOpen} onClose={() => setWifiOpen(false)} />
       <Toast toast={toast} />
       <OfflineOverlay status={status} error={error} onRetry={retry} />
     </div>
