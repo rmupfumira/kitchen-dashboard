@@ -42,7 +42,6 @@ export default function ScenesBar({ onToast }) {
 
   return (
     <div className="scenes-bar rise">
-      <span className="sect-title">Scenes</span>
       {ENTITIES.scenes.map((s) => (
         <SceneBtn key={s.id} scene={s} onActivate={activate} />
       ))}

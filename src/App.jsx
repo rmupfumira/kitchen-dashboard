@@ -12,22 +12,27 @@ import SolarCard from "./components/SolarCard";
 import MediaCard from "./components/MediaCard";
 import ClimateCard from "./components/ClimateCard";
 import ScenesBar from "./components/ScenesBar";
+import LightingView from "./components/LightingView";
+import WeatherView from "./components/WeatherView";
 import Toast from "./components/Toast";
 import OfflineOverlay from "./components/OfflineOverlay";
 
 /**
- * Luxury Gold kitchen command center — v2 (hierarchy redesign).
+ * Luxury Gold kitchen command center — glanceable build.
  *
- *   TOP    Clock · Weather (current + 3-day) · Alerts          (highest priority)
- *   MID    [Security compact + Cameras single] · Lighting hero (secondary)
- *   LOWER  Solar · Media · Air Conditioner                     (tertiary)
- *   FOOT   Scenes (elevated quick actions)
+ * Home view (single screen, designed for 3-5m viewing):
+ *   TOP    Clock · Weather (temp + condition, tap → detail) · Alerts
+ *   MID    [Security compact + Cameras] · Kitchen lighting (big ON/OFF + LED nav)
+ *   LOWER  Solar (battery hero) · Media · Air Conditioner
+ *   FOOT   Scenes (large quick-action targets)
  *
- * Security device detail lives in a slide-out drawer.
+ * Sub-views replace the band layout:
+ *   "lighting" — WLED control (brightness/colour/effects/strips)
+ *   "weather"  — full conditions + 7-day forecast
  */
 export default function App() {
   const { status, error, retry } = useHA();
-  const [view, setView] = useState("kitchen");
+  const [subview, setSubview] = useState(null); // null | "lighting" | "weather"
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
@@ -39,36 +44,44 @@ export default function App() {
   };
 
   const railPick = (id, label) => {
-    if (id === "kitchen") setView(id);
+    if (id === "kitchen") setSubview(null);
     else fireToast("sparkles", `${label} — coming soon`);
   };
 
   return (
     <div className="lux-app">
-      <Rail view={view} onPick={railPick} />
+      <Rail view={subview ? "" : "kitchen"} onPick={railPick} />
 
       <div className="lux-main">
-        <div className="lux-top">
-          <TopClock />
-          <TopWeather />
-          <TopAlerts />
-        </div>
+        {subview === "lighting" ? (
+          <LightingView onBack={() => setSubview(null)} onToast={fireToast} />
+        ) : subview === "weather" ? (
+          <WeatherView onBack={() => setSubview(null)} />
+        ) : (
+          <>
+            <div className="lux-top">
+              <TopClock />
+              <TopWeather onOpen={() => setSubview("weather")} />
+              <TopAlerts />
+            </div>
 
-        <div className="lux-mid">
-          <div className="mid-left">
-            <SecurityCard onToast={fireToast} onDetails={() => setDrawerOpen(true)} />
-            <CamerasCard />
-          </div>
-          <KitchenCard onToast={fireToast} />
-        </div>
+            <div className="lux-mid">
+              <div className="mid-left">
+                <SecurityCard onToast={fireToast} onDetails={() => setDrawerOpen(true)} />
+                <CamerasCard />
+              </div>
+              <KitchenCard onToast={fireToast} onOpenLighting={() => setSubview("lighting")} />
+            </div>
 
-        <div className="lux-low">
-          <SolarCard />
-          <MediaCard onToast={fireToast} />
-          <ClimateCard onToast={fireToast} />
-        </div>
+            <div className="lux-low">
+              <SolarCard />
+              <MediaCard onToast={fireToast} />
+              <ClimateCard onToast={fireToast} />
+            </div>
 
-        <ScenesBar onToast={fireToast} />
+            <ScenesBar onToast={fireToast} />
+          </>
+        )}
       </div>
 
       <SecurityDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onToast={fireToast} />

@@ -25,8 +25,8 @@ function batteryVisual(socPct, charging) {
 }
 
 /**
- * Simplified solar (correction 7) — only PV / Load / Grid / Battery,
- * large typography, no flow diagram. 2×2 of big readouts.
+ * Solar — Battery % is the hero metric (correction 6).
+ * Big battery panel on the left, PV / Load / Grid as small stats on the right.
  */
 export default function SolarCard() {
   const pvPower = useEntity(ENTITIES.power.pvPower);
@@ -34,56 +34,52 @@ export default function SolarCard() {
   const gridPower = useEntity(ENTITIES.power.gridPower);
   const soc = useEntity(ENTITIES.power.batterySoc);
   const battPower = useEntity(ENTITIES.power.batteryPower);
-  const selfS = useEntity(ENTITIES.power.selfSufficiency);
 
   const pvKw = toKw(pvPower);
   const loadKw = toKw(loadPower);
   const gridKw = toKw(gridPower);
   const battKw = toKw(battPower);
   const socPct = num(soc, NaN);
-  const selfPct = num(selfS, NaN);
   const importing = gridKw > 0.05;
   const exporting = gridKw < -0.05;
   const charging = battKw > 0.05;
+  const discharging = battKw < -0.05;
   const battVis = batteryVisual(socPct, charging);
 
   return (
     <div className="solar rise">
       <div className="solar-head">
-        <Zap size={15} strokeWidth={2} color="var(--gold)" />
-        <span className="sect-title">Solar System</span>
-        {Number.isFinite(selfPct) && <span className="self">{selfPct.toFixed(0)}% self-sufficient</span>}
+        <Zap size={16} strokeWidth={2} color="var(--gold)" />
+        <span className="sect-title">Solar</span>
       </div>
 
-      <div className="solar-grid">
-        <div className="sstat">
-          <div className="sstat-top">
-            <Sun size={16} strokeWidth={2} color="var(--gold)" />
-            <span className="k">PV Power</span>
-          </div>
-          <div className="v tabular">{f1(pvKw)}<span className="u">kW</span></div>
-        </div>
-        <div className="sstat">
-          <div className="sstat-top">
-            <House size={16} strokeWidth={2} color="var(--ink-soft)" />
-            <span className="k">Load</span>
-          </div>
-          <div className="v tabular">{f1(loadKw)}<span className="u">kW</span></div>
-        </div>
-        <div className="sstat">
-          <div className="sstat-top">
-            <UtilityPole size={16} strokeWidth={2} color={importing ? "var(--warning)" : exporting ? "var(--success)" : "var(--ink-mute)"} />
-            <span className="k">{importing ? "Importing" : exporting ? "Exporting" : "Grid"}</span>
-          </div>
-          <div className="v tabular">{f1(gridKw)}<span className="u">kW</span></div>
-        </div>
-        <div className="sstat">
-          <div className="sstat-top">
-            <battVis.Icon size={16} strokeWidth={2} color={battVis.color} />
-            <span className="k">Battery</span>
-          </div>
-          <div className="v tabular" style={{ color: battVis.color }}>
+      <div className="solar-body">
+        <div className="batt-hero">
+          <battVis.Icon size={34} strokeWidth={2} color={battVis.color} style={{ marginBottom: 4 }} />
+          <div className="batt-hero-pct" style={{ color: battVis.color }}>
             {Number.isFinite(socPct) ? Math.round(socPct) : "—"}<span className="u">%</span>
+          </div>
+          <div className="batt-hero-lbl">Battery</div>
+          <div className="batt-hero-sub">
+            {charging ? `Charging ${f1(battKw)} kW` : discharging ? `Discharging ${f1(battKw)} kW` : "Holding"}
+          </div>
+        </div>
+
+        <div className="solar-mini">
+          <div className="sstat">
+            <Sun size={20} strokeWidth={2} color="var(--gold)" />
+            <div className="sstat-meta"><span className="k">Solar</span></div>
+            <span className="v tabular">{f1(pvKw)}<span className="u">kW</span></span>
+          </div>
+          <div className="sstat">
+            <House size={20} strokeWidth={2} color="var(--ink-soft)" />
+            <div className="sstat-meta"><span className="k">Load</span></div>
+            <span className="v tabular">{f1(loadKw)}<span className="u">kW</span></span>
+          </div>
+          <div className="sstat">
+            <UtilityPole size={20} strokeWidth={2} color={importing ? "var(--warning)" : exporting ? "var(--success)" : "var(--ink-mute)"} />
+            <div className="sstat-meta"><span className="k">{importing ? "Import" : exporting ? "Export" : "Grid"}</span></div>
+            <span className="v tabular">{f1(gridKw)}<span className="u">kW</span></span>
           </div>
         </div>
       </div>
