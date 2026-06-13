@@ -1,17 +1,19 @@
-import { ChefHat, Sofa, BedDouble, Briefcase, Users, Trees, LayoutGrid, Settings, RefreshCw, Wifi } from "lucide-react";
+import { ChefHat, Sofa, BedDouble, Bot, Zap, Flame, Sprout, Waves, Video, Settings, RefreshCw, Wifi } from "lucide-react";
 
 /**
- * Room-nav rail (left). Kitchen is the live view; other rooms fire a toast
- * until their views exist. Bottom: hard-reload + settings.
+ * Left nav rail. Kitchen / Living / Tinotenda are room dashboards; the rest are
+ * dedicated system views. Bottom: WiFi + hard-reload + settings.
  */
 const ROOMS = [
   { id: "kitchen", Icon: ChefHat, label: "Kitchen" },
   { id: "living", Icon: Sofa, label: "Living" },
-  { id: "master", Icon: BedDouble, label: "Master" },
-  { id: "office", Icon: Briefcase, label: "Office" },
-  { id: "guest", Icon: Users, label: "Guest" },
-  { id: "outdoor", Icon: Trees, label: "Outdoor" },
-  { id: "all", Icon: LayoutGrid, label: "All" },
+  { id: "tinotenda", Icon: BedDouble, label: "Tinotenda" },
+  { id: "vacuum", Icon: Bot, label: "Vacuum" },
+  { id: "power", Icon: Zap, label: "Power" },
+  { id: "geyser", Icon: Flame, label: "Geyser" },
+  { id: "irrigation", Icon: Sprout, label: "Irrigation" },
+  { id: "pool", Icon: Waves, label: "Pool" },
+  { id: "cameras", Icon: Video, label: "Cameras" },
 ];
 
 async function hardReload() {

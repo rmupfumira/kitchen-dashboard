@@ -107,18 +107,29 @@ export const ENTITIES = {
       ],
       ledNav: false,
     },
+    tinotenda: {
+      title: "Tinotenda Lighting",
+      tiles: [
+        { id: "light", name: "Light", icon: "lightbulb", entity: "switch.sonoff_10021a6997_1" },
+        { id: "acplug", name: "AC Power", icon: "plug", entity: "switch.shellyplus1pm_fortune_ac" },
+      ],
+      ledNav: false,
+    },
   },
 
-  /* ─── Per-room climate (kitchen → geyser, living → AC) ────── */
+  /* ─── Per-room climate (kitchen → geyser, others → AC) ────── */
   climate: {
     living: { ac: "climate.living_room_ac", temp: "sensor.living_room_remote_temperature" },
+    tinotenda: { ac: "climate.tino_ac", temp: "sensor.tino_temp_sensor_temperature" },
   },
 
-  /* ─── Geyser (kitchen climate slot) ──────────────────────── */
+  /* ─── Geyser (kitchen climate slot + full Geyser view) ───── */
   geyser: {
     toggle: "switch.geyser",                              // on/off
+    altToggle: "switch.geyserwise_tse_power",             // controller power
     currentTemp: "sensor.geyserwise_tse_water_temperature", // °C actual
     targetTemp: "input_number.geyser_temperature",        // °C setpoint
+    power: "sensor.geyser_power",                         // W draw (heating)
   },
 
   /* ─── Security controls shown on the dashboard (7 tiles) ──── */
@@ -149,6 +160,111 @@ export const ENTITIES = {
     password: "mupfumir@",
     security: "WPA", // WPA/WPA2 — used to build the scan-to-join QR
   },
+
+  /* ─── Robot vacuum (Dreame L20 Ultra) ────────────────────── */
+  vacuum: {
+    entity: "vacuum.vac_man",
+    suction: "select.l20_ultra_suction_level",        // Quiet/Standard/Strong/Turbo
+    cleaningMode: "select.l20_ultra_cleaning_mode",   // Sweeping/Mopping/…
+    selectedMap: "select.l20_ultra_selected_map",
+    fanSpeeds: ["Silent", "Standard", "Strong", "Turbo"],
+    rooms: [
+      { id: "living_room", name: "Living Room" },
+      { id: "kitchen", name: "Kitchen" },
+      { id: "dining_room", name: "Dining" },
+      { id: "master_bedroom", name: "Master" },
+      { id: "ednahs_room", name: "Ednah's" },
+      { id: "ensuite_bathroom", name: "Ensuite" },
+      { id: "guest_bedroom", name: "Guest" },
+      { id: "guest_bedroom2", name: "Guest 2" },
+      { id: "office", name: "Office" },
+      { id: "office_passage", name: "Office Passage" },
+      { id: "gym", name: "Gym" },
+      { id: "library", name: "Library" },
+      { id: "hallway", name: "Hallway" },
+      { id: "laundry", name: "Laundry" },
+      { id: "scullery", name: "Scullery" },
+      { id: "kitchen_knoek", name: "Kitchen Noek" },
+      { id: "tinos_bathroom", name: "Tino's Bath" },
+      { id: "garage", name: "Garage" },
+      { id: "server_room", name: "Server Room" },
+    ],
+    // vacuum entity attributes (% remaining) shown as maintenance bars
+    maintenance: [
+      { key: "main_brush_left", name: "Main brush" },
+      { key: "side_brush_left", name: "Side brush" },
+      { key: "filter_left", name: "Filter" },
+      { key: "mop_pad_left", name: "Mop pad" },
+    ],
+  },
+
+  /* ─── Irrigation / garden ────────────────────────────────── */
+  irrigation: {
+    pump: "switch.irrigation_pump",
+    greyWater: "input_boolean.grey_water_on",
+    runFull: "input_boolean.run_full_irrigation_cycle",
+    stop: "input_boolean.stop_irrigation",
+    tanksEmpty: "input_boolean.tanks_empty",
+    scheduledTime: "input_datetime.irrigation_scheduled_time",
+    duration: "input_number.irrigation_zone_duration",
+    zones: [
+      { id: "z1", name: "Zone 1 · Pool Pump", entity: "switch.test_zone_1_pool_pump", sched: "input_boolean.zone_1_scheduled" },
+      { id: "z2", name: "Zone 2 · Firepit", entity: "switch.test_zone_2_firepit", sched: "input_boolean.zone_2_scheduled" },
+      { id: "z3", name: "Zone 3 · Front Yard", entity: "switch.sprinkler_zone_3_front_yard", sched: "input_boolean.zone_3_scheduled" },
+      { id: "z4", name: "Zone 4 · Gate", entity: "switch.test_zone_4_gate", sched: "input_boolean.zone_4_scheduled" },
+    ],
+    tanks: [
+      { id: "black", name: "Black tank", entity: "sensor.black_tank_level" },
+      { id: "brown", name: "Brown tank", entity: "sensor.brown_tank_level_liquid_level" },
+      { id: "laundry", name: "Laundry tank", entity: "sensor.laundry_tank_level_liquid_level" },
+    ],
+  },
+
+  /* ─── Swimming pool + entertainment area ─────────────────── */
+  pool: {
+    pump: "switch.pool_pump_2",
+    runPump: "input_boolean.run_pool_pump",
+    runtimeToday: "sensor.pool_pump_runtime_today",
+    runtimeWeek: "sensor.pool_pump_runtime_this_week",
+    temp: "sensor.poolsense_temperature",
+    ph: "sensor.poolsense_ph",
+    chlorine: "sensor.poolsense_chlorine",
+    entLock: "lock.ent_area",
+    schedule: [
+      { d: "Mon", entity: "input_boolean.pool_run_monday" },
+      { d: "Tue", entity: "input_boolean.pool_run_tuesday" },
+      { d: "Wed", entity: "input_boolean.pool_run_wednesday" },
+      { d: "Thu", entity: "input_boolean.pool_run_thursday" },
+      { d: "Fri", entity: "input_boolean.pool_run_friday" },
+      { d: "Sat", entity: "input_boolean.pool_run_saturday" },
+      { d: "Sun", entity: "input_boolean.pool_run_sunday" },
+    ],
+    lights: [
+      { id: "bollard", name: "Bollards", entity: "switch.bollard_lights" },
+      { id: "braai", name: "Braai", entity: "switch.ent_area_downlighter_braai" },
+      { id: "pooltable", name: "Pool Table", entity: "switch.ent_area_downlighter_pool_table" },
+      { id: "firepit", name: "Firepit", entity: "switch.ent_area_pool_firepit_light" },
+      { id: "wall", name: "Wall Lights", entity: "switch.ent_area_wall_lights" },
+    ],
+  },
+
+  /* ─── Load-shedding (shown on the Power view) ────────────── */
+  loadShedding: {
+    stage: "sensor.load_shedding_stage_capetown",
+    forecast: "calendar.load_shedding_forecast",
+  },
+
+  /* ─── All cameras (full Cameras view — 8 Frigate feeds) ──── */
+  camerasAll: [
+    { id: "doorbell", name: "Front Door", entity: "camera.doorbell_frigate" },
+    { id: "frontyard", name: "Front Yard", entity: "camera.front_yard_frigate" },
+    { id: "garage", name: "Garage", entity: "camera.garage_cam_frigate" },
+    { id: "garagefront", name: "Garage Front", entity: "camera.garage_front_frigate" },
+    { id: "gateright", name: "Gate Right", entity: "camera.gate_right_frigate" },
+    { id: "gatetop", name: "Gate Top", entity: "camera.gate_top_frigate" },
+    { id: "jojo", name: "JoJo Tanks", entity: "camera.jojo_tanks_frigate" },
+    { id: "pool", name: "Swimming Pool", entity: "camera.swimming_pool_frigate" },
+  ],
 
   /* ─── Media · Lamp ───────────────────────────────────────── */
   media: "media_player.living_room_2",   // "Lounge TV" — LG WebOS
