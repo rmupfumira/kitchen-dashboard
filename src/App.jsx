@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHA } from "./ha/HaContext";
 import Rail from "./components/Rail";
 import StatusBar from "./components/StatusBar";
@@ -26,12 +26,30 @@ import OfflineOverlay from "./components/OfflineOverlay";
  * Security lives in the status bar (status + Secure) and a slide-out drawer.
  * LED strips + weather detail are dedicated sub-views.
  */
+/* Map URL path → room id. Add more rooms here as their pages are built. */
+const ROUTES = { "/living-room": "living" };
+function roomFromPath() {
+  const p = window.location.pathname.replace(/\/+$/, "") || "/";
+  return ROUTES[p] || "kitchen";
+}
+
 export default function App() {
   const { status, error, retry } = useHA();
+  const [room, setRoom] = useState(roomFromPath); // "kitchen" | "living"
   const [subview, setSubview] = useState(null); // null | "lighting" | "weather"
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+
+  // Back/forward navigation between room pages.
+  useEffect(() => {
+    const onPop = () => {
+      setRoom(roomFromPath());
+      setSubview(null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   const fireToast = (icon, msg) => {
     setToast({ icon, msg });
@@ -39,14 +57,23 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   };
 
+  const navigate = (path) => {
+    if (window.location.pathname.replace(/\/+$/, "") !== path.replace(/\/+$/, "")) {
+      window.history.pushState({}, "", path);
+    }
+    setRoom(roomFromPath());
+    setSubview(null);
+  };
+
   const railPick = (id, label) => {
-    if (id === "kitchen") setSubview(null);
+    if (id === "kitchen") navigate("/");
+    else if (id === "living") navigate("/living-room");
     else fireToast("sparkles", `${label} — coming soon`);
   };
 
   return (
     <div className="lux-app">
-      <Rail view={subview ? "" : "kitchen"} onPick={railPick} />
+      <Rail view={subview ? "" : room} onPick={railPick} />
 
       <div className="lux-main">
         {subview === "lighting" ? (
