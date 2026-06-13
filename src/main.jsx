@@ -17,8 +17,12 @@ import "./luxury.css";
  * zoom, the box lands back at the true screen size exactly.
  */
 const DESIGN_W = 1600;
+const DESIGN_H = 1000;
 function applyScale() {
-  const z = Math.max(1, Math.min(1.8, window.innerWidth / DESIGN_W));
+  // Fit to BOTH axes: the layout is designed for ~1600×1000, so scale by the
+  // smaller ratio. This keeps a tall 3:2 kitchen panel and a short 16:9 FHD
+  // panel both inside the viewport — no vertical overflow on the wider screen.
+  const z = Math.max(1, Math.min(1.8, Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H)));
   const root = document.documentElement;
   root.style.zoom = String(z);
   root.style.setProperty("--app-w", window.innerWidth / z + "px");

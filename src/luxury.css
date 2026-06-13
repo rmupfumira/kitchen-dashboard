@@ -248,7 +248,7 @@ body {
 /* main zone grid: cameras | (lighting + AC) | (solar + media) */
 .lux-grid {
   display: grid;
-  grid-template-columns: 360px minmax(0, 1fr) 360px;
+  grid-template-columns: 340px minmax(0, 1fr) 384px;
   gap: 12px;
   min-height: 0;
 }
@@ -612,9 +612,12 @@ body {
   background: var(--recess-2); color: var(--ink-mute); transition: all 0.2s; flex-shrink: 0;
 }
 .klx-tile.on .klx-ic { color: var(--gold); background: var(--gold-08); box-shadow: var(--gold-glow-soft); }
-.klx-n { font-size: 19px; font-weight: 600; letter-spacing: -0.015em; }
+.klx-n {
+  font-size: 16.5px; font-weight: 600; letter-spacing: -0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .klx-state {
-  font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-top: 1px;
+  font-size: 21px; font-weight: 700; letter-spacing: -0.01em; margin-top: 1px;
   color: var(--ink-faint);
 }
 .klx-tile.on .klx-state { color: var(--gold-bright); }
@@ -641,7 +644,7 @@ body {
 .solar-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .solar-head .self { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--gold); }
 /* battery is the hero (correction 6): big panel + 3 small stats stacked */
-.solar-body { flex: 1; display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px; min-height: 0; }
+.solar-body { flex: 1; display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; min-height: 0; }
 .batt-hero {
   border-radius: var(--r-md);
   background: var(--recess);
@@ -662,19 +665,21 @@ body {
 .sstat {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 10px;
+  padding: 10px 13px;
   border-radius: var(--r-md);
   background: var(--recess);
   min-height: 0;
+  overflow: hidden;
 }
-.sstat-meta { display: flex; flex-direction: column; }
-.sstat .k { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
+.sstat > svg { flex-shrink: 0; }
+.sstat-meta { display: flex; flex-direction: column; min-width: 0; }
+.sstat .k { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; }
 .sstat .v {
-  font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em; line-height: 1.05; margin-left: auto;
+  font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em; line-height: 1.05; margin-left: auto; white-space: nowrap; flex-shrink: 0;
 }
-.sstat .v .u { font-size: 13px; font-weight: 500; color: var(--ink-mute); margin-left: 2px; }
+.sstat .v .u { font-size: 12px; font-weight: 500; color: var(--ink-mute); margin-left: 2px; }
 
 /* ─── laundry status (washer + dryer) ───────────────────── */
 .laundry {
