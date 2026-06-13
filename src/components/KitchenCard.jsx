@@ -38,28 +38,32 @@ function Tile({ name, entity, Icon, big = false, onToast }) {
         if ((e.key === "Enter" || e.key === " ") && !unavail) toggle();
       }}
     >
-      <span className="klx-power">
-        <Power size={14} strokeWidth={2.2} color={on ? "var(--gold)" : "var(--ink-faint)"} />
-      </span>
-      <div className="klx-ic">
-        <Icon size={big ? 26 : 22} strokeWidth={2} />
+      <div className="klx-top">
+        <div className="klx-ic">
+          <Icon size={big ? 32 : 28} strokeWidth={2} />
+        </div>
+        <span className="klx-power">
+          <Power size={17} strokeWidth={2.2} color={on ? "var(--gold)" : "var(--ink-faint)"} />
+        </span>
       </div>
-      <div className="klx-n">{name}</div>
-      <div className="klx-s">{unavail ? "Offline" : dimmable ? (on ? `${pct}%` : "Off") : on ? "On" : "Off"}</div>
-      {dimmable && (
-        <input
-          type="range"
-          className="klx-slider"
-          min={1}
-          max={100}
-          value={pct}
-          disabled={unavail || !on}
-          onClick={(e) => e.stopPropagation()}
-          onChange={(e) => setBri(Number(e.target.value))}
-          style={{ ["--vp"]: `${pct}%` }}
-          aria-label={`${name} brightness`}
-        />
-      )}
+      <div className="klx-foot">
+        <div className="klx-n">{name}</div>
+        <div className="klx-s">{unavail ? "Offline" : dimmable ? (on ? `${pct}%` : "Off") : on ? "On" : "Off"}</div>
+        {dimmable && (
+          <input
+            type="range"
+            className="klx-slider"
+            min={1}
+            max={100}
+            value={pct}
+            disabled={unavail || !on}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => setBri(Number(e.target.value))}
+            style={{ ["--vp"]: `${pct}%` }}
+            aria-label={`${name} brightness`}
+          />
+        )}
+      </div>
     </div>
   );
 }
