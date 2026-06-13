@@ -50,19 +50,18 @@ export default function SolarCard() {
     <div className="solar rise">
       <div className="solar-head">
         <Zap size={16} strokeWidth={2} color="var(--gold)" />
-        <span className="sect-title">Solar</span>
+        <span className="sect-title">Power</span>
       </div>
 
       <div className="solar-body">
+        {/* Load is the hero metric */}
         <div className="batt-hero">
-          <battVis.Icon size={34} strokeWidth={2} color={battVis.color} style={{ marginBottom: 4 }} />
-          <div className="batt-hero-pct" style={{ color: battVis.color }}>
-            {Number.isFinite(socPct) ? Math.round(socPct) : "—"}<span className="u">%</span>
+          <House size={34} strokeWidth={2} color="var(--gold)" style={{ marginBottom: 4 }} />
+          <div className="batt-hero-pct" style={{ color: "var(--gold)" }}>
+            {f1(loadKw)}<span className="u">kW</span>
           </div>
-          <div className="batt-hero-lbl">Battery</div>
-          <div className="batt-hero-sub">
-            {charging ? `Charging ${f1(battKw)} kW` : discharging ? `Discharging ${f1(battKw)} kW` : "Holding"}
-          </div>
+          <div className="batt-hero-lbl">Home Load</div>
+          <div className="batt-hero-sub">drawing now</div>
         </div>
 
         <div className="solar-mini">
@@ -72,9 +71,11 @@ export default function SolarCard() {
             <span className="v tabular">{f1(pvKw)}<span className="u">kW</span></span>
           </div>
           <div className="sstat">
-            <House size={20} strokeWidth={2} color="var(--ink-soft)" />
-            <div className="sstat-meta"><span className="k">Load</span></div>
-            <span className="v tabular">{f1(loadKw)}<span className="u">kW</span></span>
+            <battVis.Icon size={20} strokeWidth={2} color={battVis.color} />
+            <div className="sstat-meta"><span className="k">Battery</span></div>
+            <span className="v tabular" style={{ color: battVis.color }}>
+              {Number.isFinite(socPct) ? Math.round(socPct) : "—"}<span className="u">%</span>
+            </span>
           </div>
           <div className="sstat">
             <UtilityPole size={20} strokeWidth={2} color={importing ? "var(--warning)" : exporting ? "var(--success)" : "var(--ink-mute)"} />

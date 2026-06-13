@@ -84,9 +84,25 @@ export const ENTITIES = {
     ],
   },
 
-  /* ─── Media · Climate · Lamp ─────────────────────────────── */
+  /* ─── Geyser (replaces AC on the dashboard) ──────────────── */
+  geyser: {
+    toggle: "switch.geyser",                              // on/off
+    currentTemp: "sensor.geyserwise_tse_water_temperature", // °C actual
+    targetTemp: "input_number.geyser_temperature",        // °C setpoint
+  },
+
+  /* ─── Security controls shown on the dashboard (6 tiles) ──── */
+  securityControls: [
+    { id: "outdoorAlarm", name: "Outdoor Alarm", icon: "siren", entity: "alarm_control_panel.partition_outdoor", kind: "alarm" },
+    { id: "indoorAlarm", name: "Indoor Alarm", icon: "shield", entity: "alarm_control_panel.partition_indoor", kind: "alarm" },
+    { id: "gate", name: "Gate", icon: "fence", entity: "cover.centurion_gate_gate", kind: "cover" },
+    { id: "frontDoor", name: "Front Door", icon: "door-closed", entity: "lock.front_door_lock", kind: "lock" },
+    { id: "screenGate", name: "Screen Gate", icon: "fence", entity: "cover.screen_gate", kind: "cover" },
+    { id: "entArea", name: "Ent. Area", icon: "lock", entity: "lock.ent_area", kind: "lock" },
+  ],
+
+  /* ─── Media · Lamp ───────────────────────────────────────── */
   media: "media_player.living_room_2",   // "Lounge TV" — LG WebOS
-  climate: "climate.living_room_ac",     // "Living room AC"
   lamp: "switch.kitchen_pendant",        // "Kitchen Pendant" (switch.* — toggle only)
 };
 

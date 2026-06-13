@@ -7,7 +7,8 @@ import CamerasCard from "./components/CamerasCard";
 import KitchenCard from "./components/KitchenCard";
 import SolarCard from "./components/SolarCard";
 import MediaCard from "./components/MediaCard";
-import ClimateCard from "./components/ClimateCard";
+import GeyserCard from "./components/GeyserCard";
+import SecurityControls from "./components/SecurityControls";
 import ScenesBar from "./components/ScenesBar";
 import LightingView from "./components/LightingView";
 import WeatherView from "./components/WeatherView";
@@ -66,7 +67,8 @@ export default function App() {
 
               <div className="lux-col">
                 <KitchenCard onToast={fireToast} onOpenLighting={() => setSubview("lighting")} />
-                <ClimateCard onToast={fireToast} />
+                <GeyserCard onToast={fireToast} />
+                <SecurityControls onToast={fireToast} />
               </div>
 
               <div className="lux-col">

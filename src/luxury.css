@@ -741,6 +741,88 @@ body {
 .m-vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--gold-bright); cursor: pointer; box-shadow: 0 0 8px rgba(212, 175, 55, 0.5); }
 .m-vol input::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--gold-bright); border: none; }
 
+/* ─── geyser control (replaces AC) ──────────────────────── */
+.geyser {
+  flex-shrink: 0;
+  background: var(--surf-1);
+  box-shadow: var(--el-1);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.geyser-head { display: flex; align-items: center; gap: 9px; }
+.geyser-body { display: flex; align-items: center; gap: 18px; }
+.geyser-cur { flex: 1; min-width: 0; }
+.geyser-cur-v { font-size: 52px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.geyser-cur-v .u { font-size: 24px; color: var(--ink-mute); }
+.geyser-cur-l { font-size: 14px; font-weight: 500; color: var(--ink-mute); margin-top: 6px; }
+.geyser-target {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: var(--r-md); background: var(--recess); flex-shrink: 0;
+}
+.geyser-step {
+  width: 46px; height: 46px; border-radius: var(--r-sm); border: none;
+  background: var(--recess-2); color: var(--ink-soft); cursor: pointer;
+  display: grid; place-items: center; transition: all 0.15s;
+}
+.geyser-step:hover { color: var(--gold); background: var(--gold-08); }
+.geyser-target-mid { text-align: center; min-width: 56px; }
+.geyser-target-v { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1; }
+.geyser-target-l { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-top: 3px; }
+
+/* ─── security control grid (6 tiles) ───────────────────── */
+.secctls {
+  flex: 1;
+  background: var(--surf-1);
+  box-shadow: var(--el-1);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.secctls-head { display: flex; align-items: center; gap: 9px; }
+.secctls-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  min-height: 0;
+}
+.secctl {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--recess);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 0;
+}
+.secctl.secure {
+  background: radial-gradient(200px 130px at 30% 0%, var(--gold-08), transparent 70%), var(--recess-2);
+  box-shadow: var(--gold-glow-soft);
+}
+.secctl.unavail { opacity: 0.45; pointer-events: none; }
+.secctl-ic {
+  width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--recess-2); color: var(--ink-mute); transition: all 0.2s; flex-shrink: 0;
+}
+.secctl.secure .secctl-ic { color: var(--gold); background: var(--gold-08); box-shadow: var(--gold-glow-soft); }
+.secctl.open .secctl-ic { color: var(--warning); }
+.secctl-n { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
+.secctl-s {
+  font-size: 15px; font-weight: 600; margin-top: 1px; color: var(--ink-faint);
+}
+.secctl.secure .secctl-s { color: var(--gold-bright); }
+.secctl.open .secctl-s { color: var(--warning); }
+
 /* aircon — rich filled thermostat (correction 6) */
 .clim {
   flex: 1;                    /* fills the center column below the lighting strip */
