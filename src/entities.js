@@ -47,10 +47,13 @@ export const ENTITIES = {
     selfSufficiency: "sensor.off_grid_percentage_today", // %
   },
 
-  /* ─── Scenes (one-tap moods) ────────────────────────────── */
+  /* ─── Scenes (one-tap moods) ────────────────────────────────
+     morning/night are momentary TRIGGERS — they turn_on an input_boolean
+     that HA automations listen to (no persistent highlight). guest/movie/
+     silent are persistent MODES — they toggle and light up while active. */
   scenes: [
-    { id: "morning", name: "Good Morning", icon: "sunrise",      entity: "scene.good_morning" },
-    { id: "night",   name: "Night",        icon: "moon",         entity: "scene.good_night" },
+    { id: "morning", name: "Good Morning", icon: "sunrise",      entity: "input_boolean.good_morning", momentary: true },
+    { id: "night",   name: "Night",        icon: "moon",         entity: "input_boolean.good_night",   momentary: true },
     { id: "guest",   name: "Guest",        icon: "users",        entity: "input_boolean.guest_mode" },
     { id: "movie",   name: "Movie",        icon: "clapperboard", entity: "input_boolean.movie_scene" },
     { id: "silent",  name: "Silent",       icon: "volume-x",     entity: "input_boolean.dont_disturb" },

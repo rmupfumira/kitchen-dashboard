@@ -15,7 +15,9 @@ function SceneBtn({ scene, onActivate }) {
   const ent = useEntity(scene.entity);
   const domain = scene.entity.split(".")[0];
   const Icon = L[toPascal(scene.icon)] || Sparkles;
-  const on = domain === "input_boolean" && ent?.state === "on";
+  // Persistent modes (guest/movie/silent) light up while active; momentary
+  // triggers (good morning/night) are fire-and-forget — no stuck highlight.
+  const on = domain === "input_boolean" && !scene.momentary && ent?.state === "on";
 
   return (
     <button type="button" className={"scene-btn" + (on ? " on" : "")} onClick={() => onActivate(scene)}>
@@ -35,7 +37,7 @@ export default function ScenesBar({ onToast }) {
     const domain = scene.entity.split(".")[0];
     onToast?.("sparkles", `${scene.name} activated`);
     if (domain === "scene") call("scene", "turn_on", {}, { entity_id: scene.entity });
-    else if (domain === "input_boolean") call("input_boolean", "toggle", {}, { entity_id: scene.entity });
+    else if (domain === "input_boolean") call("input_boolean", scene.momentary ? "turn_on" : "toggle", {}, { entity_id: scene.entity });
     else if (domain === "script") call("script", "turn_on", {}, { entity_id: scene.entity });
     else call(domain, "turn_on", {}, { entity_id: scene.entity });
   };
