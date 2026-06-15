@@ -12,21 +12,30 @@ import Switch from "./Switch";
 const num = (ent) => { const v = Number(ent?.state); return Number.isFinite(v) ? v : NaN; };
 
 /**
- * Live camera with audio.
- *   Primary: HLS (hls.js) at a same-origin URL → nginx proxies /api/hls/ to HA,
- *            so it's CORS-free and carries audio. Autoplay unmuted works on the
- *            kiosk (Chromium --autoplay-policy=no-user-gesture-required).
- *   Fallback: cross-origin MJPEG <img> (live video, no audio) if HLS fails.
+ * Tinotenda camera.
+ *   Default: reliable live snapshots (camera_proxy, ~1s) — same proven path as
+ *            the Cameras view; no websocket stream, never blocks the view.
+ *   Audio:   tap 🔊 to upgrade to the live HLS stream (with sound) via hls.js
+ *            (same-origin through the nginx /api/hls/ proxy). Any failure
+ *            self-reverts to snapshots, so the camera always shows something.
  */
 function TinoCamera({ entityId }) {
   const { conn, status } = useHA();
   const ent = useEntity(entityId);
   const videoRef = useRef(null);
-  const [muted, setMuted] = useState(false);
-  const [mode, setMode] = useState("loading"); // loading | hls | mjpeg
+  const [tick, setTick] = useState(0);
+  const [audio, setAudio] = useState(false);
 
+  // snapshot refresh (default live-ish view)
   useEffect(() => {
-    if (status !== "connected" || !conn) return undefined;
+    if (audio) return undefined;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [audio]);
+
+  // live HLS stream — only while the user has opted into audio
+  useEffect(() => {
+    if (!audio || status !== "connected" || !conn) return undefined;
     let hls;
     let alive = true;
     (async () => {
@@ -37,46 +46,46 @@ function TinoCamera({ entityId }) {
         const video = videoRef.current;
         if (!video) return;
         if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = url; // native HLS (Safari)
+          video.src = url;
         } else if (Hls.isSupported()) {
           hls = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 10 });
-          hls.on(Hls.Events.ERROR, (_e, data) => { if (data?.fatal && alive) setMode("mjpeg"); });
+          hls.on(Hls.Events.ERROR, (_e, data) => { if (data?.fatal && alive) setAudio(false); });
           hls.loadSource(url);
           hls.attachMedia(video);
         } else {
-          setMode("mjpeg");
+          setAudio(false);
           return;
         }
-        setMode("hls");
-        video.play().catch(() => { video.muted = true; setMuted(true); video.play().catch(() => {}); });
+        video.play().catch(() => {});
       } catch {
-        if (alive) setMode("mjpeg");
+        if (alive) setAudio(false);
       }
     })();
     return () => { alive = false; if (hls) { try { hls.destroy(); } catch {} } };
-  }, [conn, status, entityId]);
+  }, [audio, conn, status, entityId]);
 
   const token = (ent?.attributes?.entity_picture || "").split("token=")[1];
-  const mjpeg = token ? `${HA_URL}/api/camera_proxy_stream/${entityId}?token=${token}` : "";
+  const snap = token ? `${HA_URL}/api/camera_proxy/${entityId}?token=${token}&_=${tick}` : "";
 
   return (
     <div className="tino-cam">
-      {mode === "mjpeg" ? (
-        mjpeg ? <img src={mjpeg} alt="Tinotenda camera" /> : <div className="cam-fallback">Camera unavailable</div>
+      {audio ? (
+        <video ref={videoRef} autoPlay playsInline />
+      ) : snap ? (
+        <img src={snap} alt="Tinotenda camera" onError={(e) => { e.currentTarget.style.opacity = 0; }} />
       ) : (
-        <video ref={videoRef} autoPlay playsInline muted={muted} />
+        <div className="cam-fallback">Camera unavailable</div>
       )}
       <span className="cam-live-pill"><Led tone="critical" pulse />LIVE</span>
-      {mode === "hls" && (
-        <button
-          type="button"
-          className="tino-mute"
-          onClick={() => { const v = videoRef.current; if (v) { v.muted = !v.muted; setMuted(v.muted); } }}
-          aria-label={muted ? "Unmute" : "Mute"}
-        >
-          {muted ? <VolumeX size={22} strokeWidth={2} /> : <Volume2 size={22} strokeWidth={2} />}
-        </button>
-      )}
+      <button
+        type="button"
+        className={"tino-mute" + (audio ? " on" : "")}
+        onClick={() => setAudio((a) => !a)}
+        aria-label={audio ? "Stop live audio" : "Live audio"}
+        title={audio ? "Live audio on — tap to stop" : "Tap for live audio"}
+      >
+        {audio ? <Volume2 size={22} strokeWidth={2} /> : <VolumeX size={22} strokeWidth={2} />}
+      </button>
     </div>
   );
 }
