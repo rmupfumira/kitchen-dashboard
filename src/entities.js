@@ -143,7 +143,7 @@ export const ENTITIES = {
 
   /* ─── Per-room climate (kitchen → geyser, others → AC) ────── */
   climate: {
-    living: { ac: "climate.living_room_ac", temp: "sensor.living_room_remote_temperature" },
+    living: { ac: "climate.living_room_ac", temp: "sensor.apollo_msr_living_room_temp_bookshelf" },
     tinotenda: { ac: "climate.tino_ac", temp: "sensor.tino_temp_sensor_temperature" },
   },
 
