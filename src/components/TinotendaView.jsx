@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import Hls from "hls.js";
 import { BedDouble, Lightbulb, Plug, Thermometer, Droplets, Minus, Plus, Volume2, VolumeX, Gauge } from "lucide-react";
 import Led from "./Led";
 import { HA_URL } from "../ha/client";
@@ -14,15 +13,17 @@ const num = (ent) => { const v = Number(ent?.state); return Number.isFinite(v) ?
 /**
  * Tinotenda camera.
  *   Default: reliable live snapshots (camera_proxy, ~1s) — same proven path as
- *            the Cameras view; no websocket stream, never blocks the view.
- *   Audio:   tap 🔊 to upgrade to the live HLS stream (with sound) via hls.js
- *            (same-origin through the nginx /api/hls/ proxy). Any failure
- *            self-reverts to snapshots, so the camera always shows something.
+ *            the Cameras view; never blocks the view.
+ *   Audio:   tap 🔊 to upgrade to a live WebRTC stream (video + AUDIO). This is
+ *            how HA's own UI streams cameras — it carries the audio track that
+ *            HA's HLS drops. Peer-to-peer over the LAN (no nginx/HLS proxy).
+ *            Any failure self-reverts to snapshots, so the camera always shows.
  */
 function TinoCamera({ entityId }) {
   const { conn, status } = useHA();
   const ent = useEntity(entityId);
   const videoRef = useRef(null);
+  const gotTrack = useRef(false);
   const [tick, setTick] = useState(0);
   const [audio, setAudio] = useState(false);
 
@@ -33,35 +34,76 @@ function TinoCamera({ entityId }) {
     return () => clearInterval(id);
   }, [audio]);
 
-  // live HLS stream — only while the user has opted into audio
+  // WebRTC stream (video + audio) — only while the user has opted into audio
   useEffect(() => {
     if (!audio || status !== "connected" || !conn) return undefined;
-    let hls;
     let alive = true;
+    let pc;
+    let unsub;
+    let sessionId = null;
+    let pending = [];
+    let failTimer;
+    gotTrack.current = false;
+    const bail = () => { if (alive) setAudio(false); };
+    const sendCandidate = (cand) =>
+      conn.sendMessagePromise({ type: "camera/webrtc/candidate", session_id: sessionId, candidate: cand }).catch(() => {});
+
     (async () => {
       try {
-        const res = await conn.sendMessagePromise({ type: "camera/stream", entity_id: entityId, format: "hls" });
-        if (!alive || !res?.url) throw new Error("no stream url");
-        const url = res.url.startsWith("http") ? res.url : window.location.origin + res.url;
-        const video = videoRef.current;
-        if (!video) return;
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = url;
-        } else if (Hls.isSupported()) {
-          hls = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 10 });
-          hls.on(Hls.Events.ERROR, (_e, data) => { if (data?.fatal && alive) setAudio(false); });
-          hls.loadSource(url);
-          hls.attachMedia(video);
-        } else {
-          setAudio(false);
-          return;
-        }
-        video.play().catch(() => {});
-      } catch {
-        if (alive) setAudio(false);
-      }
+        pc = new RTCPeerConnection();
+        pc.addTransceiver("audio", { direction: "recvonly" });
+        pc.addTransceiver("video", { direction: "recvonly" });
+        pc.addEventListener("track", (ev) => {
+          const v = videoRef.current;
+          if (!alive || !v || !ev.streams[0]) return;
+          v.srcObject = ev.streams[0];
+          gotTrack.current = true;
+          v.play().catch(() => {});
+        });
+        pc.addEventListener("icecandidate", (ev) => {
+          if (!ev.candidate?.candidate) return;
+          const cand = { candidate: ev.candidate.candidate, sdpMid: ev.candidate.sdpMid };
+          if (sessionId) sendCandidate(cand); else pending.push(cand);
+        });
+        pc.addEventListener("connectionstatechange", () => {
+          if (["failed", "closed", "disconnected"].includes(pc.connectionState)) bail();
+        });
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        if (!alive) return;
+
+        unsub = await conn.subscribeMessage(
+          (msg) => {
+            if (!alive) return;
+            try {
+              if (msg.type === "session") {
+                sessionId = msg.session_id;
+                pending.forEach(sendCandidate);
+                pending = [];
+              } else if (msg.type === "answer") {
+                pc.setRemoteDescription({ type: "answer", sdp: msg.answer });
+              } else if (msg.type === "candidate") {
+                const c = typeof msg.candidate === "string" ? { candidate: msg.candidate } : msg.candidate;
+                if (c?.candidate) pc.addIceCandidate(c).catch(() => {});
+              } else if (msg.type === "error") {
+                bail();
+              }
+            } catch { bail(); }
+          },
+          { type: "camera/webrtc/offer", entity_id: entityId, offer: pc.localDescription.sdp }
+        );
+
+        failTimer = setTimeout(() => { if (alive && !gotTrack.current) bail(); }, 8000);
+      } catch { bail(); }
     })();
-    return () => { alive = false; if (hls) { try { hls.destroy(); } catch {} } };
+
+    return () => {
+      alive = false;
+      clearTimeout(failTimer);
+      try { unsub && unsub(); } catch {}
+      try { pc && pc.close(); } catch {}
+    };
   }, [audio, conn, status, entityId]);
 
   const token = (ent?.attributes?.entity_picture || "").split("token=")[1];
