@@ -83,9 +83,9 @@ export const ENTITIES = {
   /* ─── Guest mode (suspends security automations — must be loud) ── */
   guestMode: "input_boolean.guest_mode",
 
-  /* ─── "Let Visitor In" — HA script: disarm outdoor alarm → unlock front
-     door → open screen gate. Triggered by the Security card's Let In button. */
-  entryScript: "script.let_visitor_in",
+  /* ─── "Open Front Door" — HA script: disarm outdoor alarm → unlock front
+     door → open screen gate. Triggered by the Security card's button. */
+  entryScript: "script.open_front_door",
 
   /* ─── Weather ────────────────────────────────────────────── */
   weather: "weather.pirateweather",
