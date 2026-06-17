@@ -45,7 +45,7 @@ export default function PowerView() {
   ];
 
   // Only devices meaningfully drawing power (hide standby/trickle + offline), highest first.
-  const MIN_W = 5;
+  const MIN_W = 10;
   const devices = P.devices
     .map((d) => ({ name: d.name, w: num(entities[d.entity]) }))
     .filter((d) => Number.isFinite(d.w) && d.w >= MIN_W)
