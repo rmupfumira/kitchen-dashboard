@@ -86,7 +86,7 @@ export const ENTITIES = {
   /* ─── Front-entry HA scripts (disarm outdoor alarm first) — triggered by the
      prominent buttons on the Security card. */
   entryScript: "automation.button_action_unlock_front_and_screen_door", // working automation: unlock front + screen door
-  gateScript: "script.open_gate",          // disarm → open the gate
+  gateScript: "automation.open_gate",       // working automation: disarm → open the gate
 
   /* ─── Weather ────────────────────────────────────────────── */
   weather: "weather.pirateweather",
