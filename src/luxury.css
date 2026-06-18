@@ -245,6 +245,9 @@ body {
 .lux-main.system { grid-template-rows: 92px minmax(0, 1fr); }
 /* home overview owns its whole area (its own greeting header, no status bar) */
 .lux-main.home-main { grid-template-rows: minmax(0, 1fr); }
+/* a detail sub-view is the sole child — give it the whole main area instead of
+   landing in the first band row (108px) of the base 3-row grid. */
+.lux-main:has(> .lux-detail) { grid-template-rows: minmax(0, 1fr); }
 /* detail sub-views (lighting, weather) replace the band layout */
 .lux-detail {
   display: flex;
@@ -1047,56 +1050,106 @@ body {
 .dv-title { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; }
 .dv-sub { font-size: 15px; font-weight: 500; color: var(--ink-mute); margin-top: 2px; }
 
-/* lighting view */
-.lv-body { flex: 1; display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; min-height: 0; }
-.lv-left { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
-.lv-panel {
-  background: var(--surf-1); box-shadow: var(--el-1); border-radius: var(--r-lg);
-  padding: 22px; display: flex; flex-direction: column; gap: 16px;
-}
-.lv-panel.grow { flex: 1; min-height: 0; }
-.lv-panel-title { font-size: 15px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); }
-.lv-master { display: flex; align-items: center; gap: 18px; }
-.lv-master-pct { font-size: 56px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; color: var(--gold); min-width: 130px; }
-.lv-bigslider {
-  flex: 1; -webkit-appearance: none; appearance: none; height: 14px; border-radius: 99px;
+/* reusable gold range slider (--vp = filled %) */
+.klx-slider {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 99px;
   background: linear-gradient(90deg, var(--gold) var(--vp, 50%), rgba(255,255,255,0.08) var(--vp, 50%));
   outline: none; cursor: pointer;
 }
-.lv-bigslider::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--gold-bright); border: none; cursor: pointer; box-shadow: 0 0 18px rgba(212,175,55,0.6); }
-.lv-bigslider::-moz-range-thumb { width: 34px; height: 34px; border-radius: 50%; background: var(--gold-bright); border: none; }
-.lv-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.lv-swatch {
-  aspect-ratio: 1; border-radius: var(--r-md); border: 3px solid transparent; cursor: pointer;
+.klx-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--gold-bright); border: none; cursor: pointer; box-shadow: 0 0 10px rgba(212,175,55,0.55); }
+.klx-slider::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--gold-bright); border: none; }
+.klx-slider:disabled { opacity: 0.4; cursor: default; }
+.klx-slider:disabled::-webkit-slider-thumb { box-shadow: none; }
+
+/* ─── LED (WLED) control view ───────────────────────────── */
+.led-view { position: relative; }
+.led-body { flex: 1; display: grid; grid-template-columns: minmax(0, 1.18fr) 360px; gap: 16px; min-height: 0; }
+
+.led-main, .led-side {
+  background: var(--surf-1); box-shadow: var(--el-1); border-radius: var(--r-lg);
+  padding: 20px; display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: hidden;
+}
+.led-main-h, .led-side-h {
+  display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
+  font-size: 13.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute);
+}
+.led-main-h svg, .led-sect-h svg, .led-mini-l svg, .led-search svg, .led-modal-h svg { color: var(--gold); }
+
+.led-ctl { display: flex; flex-direction: column; gap: 14px; min-height: 0; flex: 1; }
+.led-ctl.unavail { opacity: 0.5; pointer-events: none; }
+
+.led-row { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.led-power {
+  width: 46px; height: 46px; border-radius: 50%; border: none; flex-shrink: 0; cursor: pointer;
+  background: var(--recess); color: var(--ink-mute); display: grid; place-items: center; transition: all 0.18s;
+}
+.led-power.on { background: var(--gold-12); color: var(--gold); box-shadow: var(--gold-glow-soft); }
+.led-bri { flex: 1; height: 14px; }
+.led-bri-v { font-size: 26px; font-weight: 700; color: var(--gold); min-width: 64px; text-align: right; }
+
+.led-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; flex-shrink: 0; }
+.led-sw {
+  aspect-ratio: 1.7; border-radius: var(--r-md); border: 3px solid transparent; cursor: pointer;
   transition: transform 0.15s, border-color 0.15s;
 }
-.lv-swatch:hover { transform: scale(1.06); }
-.lv-swatch.on { border-color: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.25); }
-.lv-effects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.lv-effect {
-  padding: 16px; border-radius: var(--r-md); border: none; background: var(--recess);
-  color: var(--ink-soft); font-family: var(--font); font-size: 16px; font-weight: 600; cursor: pointer;
-  transition: all 0.16s;
+.led-sw:hover { transform: scale(1.05); }
+.led-sw.on { border-color: #fff; box-shadow: 0 0 14px rgba(255,255,255,0.28); }
+
+.led-sliders { display: flex; flex-direction: column; gap: 11px; flex-shrink: 0; }
+.led-mini { display: flex; align-items: center; gap: 12px; }
+.led-mini-l { display: inline-flex; align-items: center; gap: 6px; width: 104px; flex-shrink: 0; font-size: 14.5px; font-weight: 600; color: var(--ink-soft); }
+.led-mini .klx-slider { flex: 1; }
+.led-mini-v { font-size: 16px; font-weight: 600; color: var(--ink-soft); width: 46px; text-align: right; flex-shrink: 0; }
+
+.led-sect { display: flex; flex-direction: column; gap: 9px; min-height: 0; flex: 1 1 0; }
+.led-sect-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+.led-sect-h > span { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
+.led-search { display: flex; align-items: center; gap: 6px; background: var(--recess); border-radius: 99px; padding: 5px 12px; color: var(--ink-faint); }
+.led-search input { background: none; border: none; outline: none; color: var(--ink); font-family: var(--font); font-size: 14px; width: 118px; }
+.led-search input::placeholder { color: var(--ink-faint); }
+
+.led-chips { flex: 1; min-height: 60px; max-height: 210px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; padding-right: 4px; }
+.led-chip {
+  padding: 8px 13px; border-radius: 99px; border: none; background: var(--recess); color: var(--ink-soft);
+  font-family: var(--font); font-size: 14.5px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.14s;
 }
-.lv-effect:hover { background: var(--recess-2); color: var(--ink); }
-.lv-effect.on { background: var(--gold-12); color: var(--gold); box-shadow: var(--gold-glow-soft); }
-.lv-strips { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 14px; min-height: 0; overflow-y: auto; }
-.lv-strip {
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: 18px 20px; border-radius: var(--r-md); background: var(--recess); cursor: pointer; min-height: 0;
-  transition: all 0.2s;
+.led-chip:hover { background: var(--recess-2); color: var(--ink); }
+.led-chip.on { background: var(--gold-12); color: var(--gold-bright); box-shadow: var(--gold-glow-soft); }
+.led-none { color: var(--ink-faint); font-size: 14px; font-weight: 500; padding: 8px 2px; }
+
+/* right rail — individual strips */
+.led-strips { flex: 1; display: flex; flex-direction: column; gap: 11px; min-height: 0; overflow-y: auto; padding-right: 4px; }
+.led-strip { background: var(--recess); border-radius: var(--r-md); padding: 14px 16px; transition: all 0.2s; flex-shrink: 0; }
+.led-strip.on { background: var(--gold-08); box-shadow: var(--gold-glow-soft); }
+.led-strip.unavail { opacity: 0.45; }
+.led-strip-top { display: flex; align-items: center; gap: 10px; }
+.led-strip-n { font-size: 17px; font-weight: 600; flex: 1; min-width: 0; }
+.led-strip-tune {
+  width: 34px; height: 34px; border-radius: 50%; border: none; flex-shrink: 0; cursor: pointer;
+  background: var(--recess-2); color: var(--ink-mute); display: grid; place-items: center; transition: all 0.16s;
 }
-.lv-strip.on { background: var(--gold-08); box-shadow: var(--gold-glow-soft); }
-.lv-strip.unavail { opacity: 0.45; }
-.lv-strip-top { display: flex; align-items: center; justify-content: space-between; }
-.lv-strip-n { font-size: 20px; font-weight: 600; }
-.lv-strip-s { font-size: 15px; font-weight: 500; color: var(--ink-mute); margin-top: 4px; }
-.lv-empty {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-  color: var(--ink-mute); text-align: center;
+.led-strip-tune:hover { color: var(--gold); background: var(--gold-08); }
+.led-strip-tune:disabled { opacity: 0.4; cursor: default; }
+.led-strip-s { font-size: 13.5px; font-weight: 500; color: var(--ink-mute); margin-top: 4px; }
+
+/* per-strip tune modal (scoped to the LED view, not full-screen) */
+.led-modal-scrim {
+  position: absolute; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px;
+  background: rgba(0, 0, 0, 0.62); backdrop-filter: blur(3px); animation: led-fade 0.16s ease;
 }
-.lv-empty-t { font-size: 20px; font-weight: 600; color: var(--ink-soft); }
-.lv-empty-s { font-size: 15px; font-weight: 500; max-width: 360px; }
+@keyframes led-fade { from { opacity: 0; } to { opacity: 1; } }
+.led-modal {
+  width: min(560px, 94%); height: min(90%, 720px); background: var(--surf-1); border-radius: var(--r-lg);
+  box-shadow: var(--el-1), 0 30px 80px -20px rgba(0,0,0,0.7); padding: 20px;
+  display: flex; flex-direction: column; gap: 14px; min-height: 0;
+}
+.led-modal-h { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.led-modal-h > span { display: inline-flex; align-items: center; gap: 9px; font-size: 21px; font-weight: 600; }
+.led-modal-x {
+  width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--recess); color: var(--ink-mute); display: grid; place-items: center; transition: all 0.16s;
+}
+.led-modal-x:hover { color: var(--ink); background: var(--recess-2); }
 
 /* weather view */
 .wv-body { flex: 1; display: flex; flex-direction: column; gap: 16px; min-height: 0; }

@@ -51,7 +51,7 @@ function SwitchStatus({ tile }) {
 export default function LightingCard({ config, onToast, onOpenLighting }) {
   const { entities } = useHA();
   const strips = ENTITIES.kitchen.strips;
-  const liveCount = strips.filter((s) => entities[s.entity] && entities[s.entity].state !== "unavailable").length;
+  const liveCount = strips.filter((s) => entities[s.light] && entities[s.light].state !== "unavailable").length;
 
   return (
     <div className="klx rise">

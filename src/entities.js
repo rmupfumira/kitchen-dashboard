@@ -99,17 +99,21 @@ export const ENTITIES = {
   ],
 
   /* ─── Kitchen lighting ───────────────────────────────────── */
-  /* WLED strips: placeholder IDs — rename these once the 6 strips are
-     flashed + named in the WLED integration. Until then the tiles render
-     in the muted "unavailable" state. WLED creates light.<device_name>. */
+  /* WLED cabinet/island/peninsula strips. `ledGroup` is the HA light group
+     (light.turn_on fans out to all members server-side). Effects + colour +
+     brightness go through the group; palette / speed / intensity are per-WLED
+     `select`/`number` entities, so the LED view fans those out to every strip.
+     Entity IDs are messy (the bottom-right WLED uses an `alarm_light_*` base)
+     — verified against HA on 2026-06-18. Speed/intensity are 0–255. */
   kitchen: {
+    ledGroup: "light.kitchen_cabinets_strip_grp",
     strips: [
-      { id: "s1", name: "Strip 1", entity: "light.kitchen_strip_1" },
-      { id: "s2", name: "Strip 2", entity: "light.kitchen_strip_2" },
-      { id: "s3", name: "Strip 3", entity: "light.kitchen_strip_3" },
-      { id: "s4", name: "Strip 4", entity: "light.kitchen_strip_4" },
-      { id: "s5", name: "Strip 5", entity: "light.kitchen_strip_5" },
-      { id: "s6", name: "Strip 6", entity: "light.kitchen_strip_6" },
+      { id: "win_bottom",   name: "Bottom Window", light: "light.kitchen_bottom_cabinet_window",  palette: "select.wled_gledopto_color_palette",   speed: "number.wled_gledopto_speed",   intensity: "number.wled_gledopto_intensity" },
+      { id: "win_top",      name: "Top Window",    light: "light.wled_gledopto_2",                 palette: "select.wled_gledopto_color_palette_2", speed: "number.wled_gledopto_speed_2", intensity: "number.wled_gledopto_intensity_2" },
+      { id: "top_right",    name: "Top Right",     light: "light.wled_gledopto_3",                 palette: "select.wled_gledopto_color_palette_3", speed: "number.wled_gledopto_speed_3", intensity: "number.wled_gledopto_intensity_3" },
+      { id: "island",       name: "Island",        light: "light.wled_kitchen_island",             palette: "select.wled_gledopto_color_palette_4", speed: "number.wled_gledopto_speed_4", intensity: "number.wled_gledopto_intensity_4" },
+      { id: "peninsula",    name: "Peninsula",     light: "light.wled_kitchen_peninsula_strip",    palette: "select.wled_gledopto_color_palette_5", speed: "number.wled_gledopto_speed_5", intensity: "number.wled_gledopto_intensity_5" },
+      { id: "bottom_right", name: "Bottom Right",  light: "light.kitchen_bottom_right_strip",       palette: "select.alarm_light_color_palette_2",   speed: "number.alarm_light_speed_2",   intensity: "number.alarm_light_intensity_2" },
     ],
     switches: [
       { id: "pendant", name: "Pendant", icon: "lamp-ceiling", entity: "switch.kitchen_pendant" },
