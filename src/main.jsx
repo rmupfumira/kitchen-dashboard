@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { HaProvider } from "./ha/HaContext.jsx";
 import { ConfirmProvider } from "./components/Confirm.jsx";
+import { SettingsProvider, SETTINGS_KEY } from "./useSettings.jsx";
 import "./luxury.css";
 
 /**
@@ -38,12 +39,22 @@ function applyScale() {
 applyScale();
 window.addEventListener("resize", applyScale);
 
+// Pre-apply the saved skin before first paint to avoid a flash of the default.
+try {
+  const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+  document.documentElement.dataset.skin = saved.skin || "gold";
+} catch {
+  document.documentElement.dataset.skin = "gold";
+}
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <HaProvider>
-      <ConfirmProvider>
-        <App />
-      </ConfirmProvider>
-    </HaProvider>
+    <SettingsProvider>
+      <HaProvider>
+        <ConfirmProvider>
+          <App />
+        </ConfirmProvider>
+      </HaProvider>
+    </SettingsProvider>
   </StrictMode>
 );

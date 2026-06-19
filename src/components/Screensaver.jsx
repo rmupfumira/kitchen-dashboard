@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake, ShieldOff } from "lucide-react";
 import { ENTITIES } from "../entities";
 import { useEntity } from "../ha/HaContext";
+import { useSettings } from "../useSettings";
 
 const COND = {
   "clear-night": Moon, cloudy: Cloud, fog: CloudFog, hail: CloudSnow,
@@ -18,6 +19,7 @@ const condLabel = (s) => (s || "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.
  */
 export default function Screensaver({ onWake }) {
   const [now, setNow] = useState(() => new Date());
+  const { settings } = useSettings();
   const weather = useEntity(ENTITIES.weather);
   const guest = useEntity(ENTITIES.guestMode);
 
@@ -34,7 +36,9 @@ export default function Screensaver({ onWake }) {
     return () => window.removeEventListener("keydown", wake, true);
   }, [onWake]);
 
-  const hh = String(now.getHours()).padStart(2, "0");
+  const h24 = now.getHours();
+  const ampm = settings.clock24h ? "" : (h24 >= 12 ? "PM" : "AM");
+  const hh = String(settings.clock24h ? h24 : (h24 % 12 || 12)).padStart(2, "0");
   const mm = String(now.getMinutes()).padStart(2, "0");
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
@@ -49,6 +53,7 @@ export default function Screensaver({ onWake }) {
       )}
       <div className="saver-clock tabular">
         <span>{hh}</span><span className="saver-colon">:</span><span>{mm}</span>
+        {ampm && <span style={{ fontSize: "0.3em", color: "var(--gold)", fontWeight: 700, marginLeft: "0.22em", verticalAlign: "0.7em" }}>{ampm}</span>}
       </div>
       <div className="saver-date">{dateStr}</div>
       {weather && (

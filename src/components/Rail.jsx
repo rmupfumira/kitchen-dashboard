@@ -60,7 +60,12 @@ export default function Rail({ view, onPick, onWifi }) {
         <RefreshCw size={26} strokeWidth={2.2} />
         <span>Refresh</span>
       </button>
-      <button type="button" className="rail-item" aria-label="Settings">
+      <button
+        type="button"
+        className={"rail-item" + (view === "settings" ? " active" : "")}
+        onClick={() => onPick("settings")}
+        aria-label="Settings"
+      >
         <Settings size={19} strokeWidth={2} />
         <span>Settings</span>
       </button>

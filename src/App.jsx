@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useHA } from "./ha/HaContext";
 import { useWakeRefresh } from "./ha/useWakeRefresh";
 import { useIdle } from "./useIdle";
+import { useSettings } from "./useSettings";
 import { ENTITIES, ALERT_SENSORS } from "./entities";
 import Rail from "./components/Rail";
 import StatusBar from "./components/StatusBar";
@@ -30,6 +31,7 @@ import CamerasView from "./components/CamerasView";
 import TinotendaView from "./components/TinotendaView";
 import HomeView from "./components/HomeView";
 import KitchenView from "./components/KitchenView";
+import SettingsView from "./components/SettingsView";
 import Toast from "./components/Toast";
 import OfflineOverlay from "./components/OfflineOverlay";
 
@@ -53,10 +55,10 @@ const VIEW_PATH = {
   irrigation: "/irrigation",
   pool: "/swimming-pool",
   cameras: "/cameras",
+  settings: "/settings",
 };
 const ROUTES = Object.fromEntries(Object.entries(VIEW_PATH).map(([v, p]) => [p, v]));
 const ROOM_VIEWS = ["kitchen", "living"];
-const IDLE_MS = 120_000; // show the clock screensaver after 2 min untouched
 
 function viewFromPath() {
   const p = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -71,6 +73,7 @@ const SYSTEM_VIEWS = {
   irrigation: IrrigationView,
   pool: PoolView,
   cameras: CamerasView,
+  settings: SettingsView,
 };
 
 export default function App() {
@@ -122,7 +125,9 @@ export default function App() {
   // takeover shows the dashboard, not the clock, afterwards).
   const criticalAlert = ALERT_SENSORS.some((s) => s.class === "critical" && entities[s.id]?.state === "on");
   const doorbellRinging = entities[ENTITIES.doorbell.ringing]?.state === "on";
-  const [idle, wake] = useIdle(IDLE_MS, { inhibit: criticalAlert || doorbellRinging });
+  const { settings } = useSettings();
+  const idleMs = Math.max(15, settings.screensaverTimeoutSec || 120) * 1000;
+  const [idle, wake] = useIdle(idleMs, { inhibit: !settings.screensaver || criticalAlert || doorbellRinging });
 
   return (
     <div className="lux-app">
