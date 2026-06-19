@@ -1,9 +1,9 @@
 {
-  "name": "nocturne",
+  "name": "kitchen-dashboard",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "NOCTURNE — smart-home command-deck dashboard for the living-room wall panel.",
+  "description": "Kitchen wall-panel smart-home dashboard for Home Assistant.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

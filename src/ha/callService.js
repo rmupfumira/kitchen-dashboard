@@ -8,7 +8,7 @@
  */
 export async function callService(conn, domain, service, serviceData = {}, target = undefined) {
   if (!conn) {
-    console.warn("[NOCTURNE] callService called without a connection", { domain, service });
+    console.warn("[Dashboard] callService called without a connection", { domain, service });
     return;
   }
   const payload = {
@@ -21,7 +21,7 @@ export async function callService(conn, domain, service, serviceData = {}, targe
   try {
     return await conn.sendMessagePromise(payload);
   } catch (err) {
-    console.warn("[NOCTURNE] service call failed", domain, service, err);
+    console.warn("[Dashboard] service call failed", domain, service, err);
     throw err;
   }
 }

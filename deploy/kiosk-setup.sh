@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ──────────────────────────────────────────────────────────────
 # kiosk-setup.sh — turn a Raspberry Pi OS Desktop install into a
-# NOCTURNE wall-panel kiosk that boots straight into the dashboard.
+# Wall-panel kiosk that boots straight into the dashboard.
 #
 # Usage:
 #   bash deploy/kiosk-setup.sh <dashboard-url>
@@ -17,7 +17,7 @@
 #   5. Prints reboot instructions
 #
 # Reverse it with:
-#   rm ~/.config/autostart/nocturne-kiosk.desktop && sudo reboot
+#   rm ~/.config/autostart/dashboard-kiosk.desktop && sudo reboot
 #
 # Tested on:
 #   - Raspberry Pi OS Bookworm 64-bit (Wayfire / labwc / Wayland) — Pi 4/5
@@ -62,18 +62,18 @@ fi
 
 # ── Autostart entry (universal — works for LXDE, Wayfire, labwc) ─
 mkdir -p "$HOME/.config/autostart"
-AUTOSTART="$HOME/.config/autostart/nocturne-kiosk.desktop"
+AUTOSTART="$HOME/.config/autostart/dashboard-kiosk.desktop"
 
 cat > "$AUTOSTART" << EOF
 [Desktop Entry]
 Type=Application
-Name=NOCTURNE Kiosk
-Comment=Launch NOCTURNE dashboard fullscreen on boot
+Name=Dashboard Kiosk
+Comment=Launch the dashboard fullscreen on boot
 # Pipeline:
 #   - xset    : kill screen blanker + DPMS (no-op on Wayland, harmless)
 #   - unclutter : hide the mouse cursor when idle for 0s
 #   - chromium-browser --kiosk : true fullscreen, no chrome / address bar
-Exec=/bin/sh -c "sleep 5; xset s off || true; xset -dpms || true; xset s noblank || true; unclutter -idle 0 -root & exec chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-translate --no-first-run --start-fullscreen --start-maximized --autoplay-policy=no-user-gesture-required --check-for-update-interval=31536000 --disable-pinch --overscroll-history-navigation=0 --touch-events=enabled --disable-features=TranslateUI --user-data-dir=\$HOME/.config/nocturne-chromium '$URL'"
+Exec=/bin/sh -c "sleep 5; xset s off || true; xset -dpms || true; xset s noblank || true; unclutter -idle 0 -root & exec chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-translate --no-first-run --start-fullscreen --start-maximized --autoplay-policy=no-user-gesture-required --check-for-update-interval=31536000 --disable-pinch --overscroll-history-navigation=0 --touch-events=enabled --disable-features=TranslateUI --user-data-dir=\$HOME/.config/dashboard-chromium '$URL'"
 X-GNOME-Autostart-enabled=true
 NotShowIn=GNOME;KDE;
 EOF
@@ -90,5 +90,5 @@ echo "Notes:"
 echo "  · Chromium will open '$URL' in fullscreen on every boot."
 echo "  · Exit kiosk with Alt+F4 (will respawn on next boot unless you remove the autostart file)."
 echo "  · Disable: rm $AUTOSTART && sudo reboot"
-echo "  · Logs: ~/.config/nocturne-chromium/  (separate Chromium profile)"
+echo "  · Logs: ~/.config/dashboard-chromium/  (separate Chromium profile)"
 echo "──────────────────────────────────────────────"

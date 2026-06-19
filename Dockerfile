@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Multi-stage build for NOCTURNE.
+# Multi-stage build for the kitchen dashboard.
 # Stage 1: Node 20-alpine builds the Vite bundle.
 # Stage 2: nginx-alpine serves the static dist/ — tiny + fast cold start.
 #
@@ -28,8 +28,8 @@ RUN npm run build
 
 # ──────────────────────────────────────────────────────────────
 FROM nginx:1.27-alpine
-LABEL org.opencontainers.image.title="nocturne"
-LABEL org.opencontainers.image.description="NOCTURNE — smart-home command-deck dashboard"
+LABEL org.opencontainers.image.title="kitchen-dashboard"
+LABEL org.opencontainers.image.description="Kitchen wall-panel smart-home dashboard for Home Assistant"
 LABEL org.opencontainers.image.source="https://github.com/rmupfumira/kitchen-dashboard"
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
