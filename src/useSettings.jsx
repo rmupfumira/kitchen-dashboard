@@ -16,7 +16,8 @@ export const DEFAULTS = {
 };
 
 export const SKINS = [
-  { id: "gold", name: "Luxury Gold", hex: "#d4af37" },
+  { id: "gold", name: "Champagne", hex: "#cba57a" },
+  { id: "classicgold", name: "Classic Gold", hex: "#d4af37" },
   { id: "platinum", name: "Platinum", hex: "#c2ccd9" },
   { id: "emerald", name: "Emerald", hex: "#36c281" },
   { id: "sapphire", name: "Sapphire", hex: "#4f8cf7" },

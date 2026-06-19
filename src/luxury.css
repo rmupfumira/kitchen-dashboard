@@ -7,23 +7,26 @@
    ============================================================ */
 
 :root {
-  --bg-0: #070707;
-  --bg-1: #0d0d0d;
+  /* Warm champagne canvas — the kitchen panel's Crestron palette, applied
+     dashboard-wide so every page matches the ambience panel. */
+  --bg-0: #0e0b0a;
+  --bg-1: #15110f;
 
   /* surfaces — elevation by lightness + shadow, NOT borders */
-  --surf-1: linear-gradient(165deg, #161616 0%, #0f0f0f 100%);  /* base card */
-  --surf-2: linear-gradient(165deg, #1d1d1d 0%, #151515 100%);  /* raised / hero */
-  --recess: #0c0c0c;            /* sunken tile inside a card */
-  --recess-2: #131313;          /* slightly raised inner element */
+  --surf-1: linear-gradient(165deg, #1a1512 0%, #120e0c 100%);  /* base card */
+  --surf-2: linear-gradient(165deg, #221b16 0%, #181310 100%);  /* raised / hero */
+  --recess: #120f0d;            /* sunken tile inside a card */
+  --recess-2: #181310;          /* slightly raised inner element */
 
   --line: rgba(255, 255, 255, 0.05);   /* used sparingly — dividers only */
 
   /* Accent — the whole UI tints from these four. Skins (bottom of file)
-     override them per [data-skin]; everything else flows through --gold*. */
-  --accent: #d4af37;
-  --accent-rgb: 212, 175, 55;
-  --accent-bright: #e8c656;
-  --accent-deep: #a8862a;
+     override them per [data-skin]; everything else flows through --gold*.
+     Default is muted champagne to match the kitchen ambience panel. */
+  --accent: #cba57a;
+  --accent-rgb: 203, 165, 122;
+  --accent-bright: #e0c49a;
+  --accent-deep: #a8825a;
   --gold: var(--accent);
   --gold-bright: var(--accent-bright);
   --gold-deep: var(--accent-deep);
@@ -37,10 +40,10 @@
   --warning: #e3a008;
   --critical: #dc2626;
 
-  --ink: #f4f2ec;
-  --ink-soft: #cbc8be;
-  --ink-mute: #8a887f;
-  --ink-faint: #56544c;
+  --ink: #f4f1ea;
+  --ink-soft: #cdc7ba;
+  --ink-mute: #8f897d;
+  --ink-faint: #5a564d;
 
   /* elevation shadows */
   --el-1: 0 10px 30px -16px rgba(0, 0, 0, 0.8);
@@ -1874,6 +1877,7 @@ body {
 /* ════════════════════════════════════════════════════════
    SKINS — set on <html data-skin>. Everything re-tints via --gold*.
    ════════════════════════════════════════════════════════ */
+[data-skin="classicgold"] { --accent: #d4af37; --accent-rgb: 212, 175, 55; --accent-bright: #e8c656; --accent-deep: #a8862a; }
 [data-skin="platinum"] { --accent: #c2ccd9; --accent-rgb: 194, 204, 217; --accent-bright: #e2e9f2; --accent-deep: #94a0b0; }
 [data-skin="emerald"]  { --accent: #36c281; --accent-rgb: 54, 194, 129;  --accent-bright: #5bdca0; --accent-deep: #1f8f5b; }
 [data-skin="sapphire"] { --accent: #4f8cf7; --accent-rgb: 79, 140, 247;  --accent-bright: #7da9ff; --accent-deep: #2f64c4; }
