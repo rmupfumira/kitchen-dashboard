@@ -1970,7 +1970,7 @@ body {
 /* fuller layout — 2-column body that fills, + bottom status line */
 .amb-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.05fr 1fr; gap: 2.2rem 5rem; }
 .amb-col { display: flex; flex-direction: column; min-height: 0; }
-.amb-col-l { gap: 1.1rem; }
+.amb-col-l { gap: 1.1rem; justify-content: space-between; }
 .amb-col-r { gap: 1.3rem; }
 
 .amb-transport { display: flex; align-items: center; gap: 1.6rem; margin-top: 1.3rem; }

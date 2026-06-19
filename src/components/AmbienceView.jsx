@@ -443,19 +443,7 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
   const { entities } = useHA();
   const call = useService();
   const K = ENTITIES.kitchen;
-  const [ambId, setAmbId] = useState(K.ambience[0].id);
   const [stripsOpen, setStripsOpen] = useState(false);
-  const ambName = K.ambience.find((a) => a.id === ambId)?.name || "—";
-
-  const applyAmbience = (a) => {
-    setAmbId(a.id);
-    onToast?.("sparkles", a.name);
-    if (a.off) { call("light", "turn_off", {}, { entity_id: K.ambienceTarget }); return; }
-    const data = { brightness_pct: a.bri ?? 80 };
-    if (a.effect) data.effect = a.effect;
-    if (a.rgb) data.rgb_color = a.rgb;
-    call("light", "turn_on", data, { entity_id: K.ambienceTarget });
-  };
 
   const activateScene = (s) => {
     const domain = s.entity.split(".")[0];
@@ -472,13 +460,6 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
 
       <div className="amb-body">
         <div className="amb-col amb-col-l">
-          <section className="amb-sect">
-            <div className="amb-label">Ambience</div>
-            <Dropdown value={ambName} sub="Current"
-              items={K.ambience.map((a) => ({ id: a.id, name: a.name, active: a.id === ambId }))}
-              onPick={applyAmbience} />
-          </section>
-
           <section className="amb-sect">
             <div className="amb-label">Scenes</div>
             <div className="amb-pills">
