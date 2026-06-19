@@ -35,6 +35,7 @@ import AmbienceView from "./components/AmbienceView";
 import SettingsView from "./components/SettingsView";
 import Toast from "./components/Toast";
 import OfflineOverlay from "./components/OfflineOverlay";
+import OnScreenKeyboard from "./components/OnScreenKeyboard";
 
 /**
  * Luxury Gold command center.
@@ -206,6 +207,7 @@ export default function App() {
       {idle && <Screensaver onWake={wake} />}
       <DoorbellOverlay onToast={fireToast} />
       <GuestModeAlert onToast={fireToast} />
+      <OnScreenKeyboard />
     </div>
   );
 }

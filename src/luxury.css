@@ -2102,6 +2102,28 @@ body {
 .amb-notif-x { width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.04); color: var(--warm-grey); display: grid; place-items: center; flex-shrink: 0; }
 .amb-notif-x:hover { color: #fff; }
 
+/* front-door camera — on-demand button */
+.amb-cambtn { display: flex; align-items: center; gap: 0.9rem; width: 100%; background: rgba(255, 255, 255, 0.025); border: 1px solid var(--hair); border-radius: 10px; cursor: pointer; padding: 0.85rem 1.1rem; color: var(--warm-grey); font-family: var(--font); text-align: left; transition: all 0.16s; }
+.amb-cambtn:hover { border-color: rgba(203, 165, 122, 0.3); background: rgba(203, 165, 122, 0.06); }
+.amb-cambtn > svg:first-child { color: var(--champ); flex-shrink: 0; }
+.amb-cambtn > svg:last-child { color: rgba(158, 149, 144, 0.6); flex-shrink: 0; }
+.amb-cambtn-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.amb-cambtn-n { font-size: 1.15rem; font-weight: 300; color: #f2ede6; }
+.amb-cambtn-s { font-size: 0.95rem; font-weight: 300; color: rgba(158, 149, 144, 0.75); }
+
+/* in-app on-screen keyboard (touch kiosk has no native OSK) */
+.osk { position: fixed; left: 0; right: 0; bottom: 0; z-index: 500; display: flex; justify-content: center; padding: 0.7rem 1rem 1.1rem; background: linear-gradient(180deg, rgba(12, 10, 9, 0.86) 0%, rgba(12, 10, 9, 0.97) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 -24px 60px -20px rgba(0, 0, 0, 0.8); animation: osk-rise 0.18s ease; }
+@keyframes osk-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.osk-keys { width: min(1100px, 100%); display: flex; flex-direction: column; gap: 0.5rem; }
+.osk-row { display: flex; justify-content: center; gap: 0.5rem; }
+.osk-key { flex: 1 1 0; min-width: 0; height: 64px; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; background: linear-gradient(180deg, #221b17 0%, #181310 100%); border: 1px solid rgba(203, 165, 122, 0.14); border-radius: 9px; color: #f2ede6; font-family: var(--font); font-weight: 300; font-size: 1.5rem; cursor: pointer; user-select: none; transition: background 0.1s, border-color 0.1s; }
+.osk-key:active { background: rgba(203, 165, 122, 0.22); border-color: rgba(203, 165, 122, 0.45); }
+.osk-mod { flex: 1.4 1 0; color: #cba57a; }
+.osk-mod.on { background: rgba(203, 165, 122, 0.22); border-color: rgba(203, 165, 122, 0.5); color: #f2ede6; }
+.osk-fn { flex: 1.8 1 0; font-size: 1.1rem; color: #cba57a; }
+.osk-enter { background: rgba(203, 165, 122, 0.16); border-color: rgba(203, 165, 122, 0.4); }
+.osk-space { flex: 6 1 0; font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(158, 149, 144, 0.8); }
+
 /* ── Music Assistant browser (search · play / queue) ── */
 .mbrowse { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }
 .mbrowse-panel { width: min(820px, 96%); max-height: 88%; display: flex; flex-direction: column; background: linear-gradient(180deg, #1c1613 0%, #14100e 100%); border: 1px solid rgba(203, 165, 122, 0.18); border-radius: 14px; box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.9); overflow: hidden; }

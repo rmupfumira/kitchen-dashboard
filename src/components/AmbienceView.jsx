@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as L from "lucide-react";
 import {
-  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Shield, Music, Zap, Maximize2, X, Search, Sparkles,
+  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Shield, Music, Zap, Maximize2, X, Search, Sparkles, Video,
   Shirt, Square, CheckSquare, Plus, AlertTriangle, DoorOpen, Fence, SlidersHorizontal, Bell,
   Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake,
 } from "lucide-react";
@@ -354,22 +354,28 @@ function AudioSection({ onToast }) {
   );
 }
 
-/* ── front-door camera glance (tap to enlarge) — compact ── */
-function CameraGlance() {
+/* ── front-door camera — on-demand (feed only loads while open, so no idle
+   overhead) · the doorbell still auto-pops the global DoorbellOverlay ── */
+function CameraButton() {
   const cam = ENTITIES.cameras[0];
   const ent = useEntity(cam.entity);
   const [tick, setTick] = useState(0);
   const [full, setFull] = useState(false);
-  useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), full ? 2000 : 6000); return () => clearInterval(id); }, [full]);
+  useEffect(() => { if (!full) return; const id = setInterval(() => setTick((t) => t + 1), 1500); return () => clearInterval(id); }, [full]);
   const path = ent?.attributes?.entity_picture;
-  const src = useMemo(() => { if (!path) return ""; const u = haAuthUrl(path); return u + (u.includes("?") ? "&" : "?") + "t=" + tick; }, [path, tick]);
+  const src = useMemo(() => { if (!full || !path) return ""; const u = haAuthUrl(path); return u + (u.includes("?") ? "&" : "?") + "t=" + tick; }, [full, path, tick]);
+  const offline = !ent || ent.state === "unavailable";
   return (
-    <section className="amb-sect amb-cam-sect">
-      <div className="amb-label">{cam.name}</div>
-      <div className="amb-cam" role="button" tabIndex={0} onClick={() => setFull(true)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setFull(true); }}>
-        {src ? <img src={src} alt={cam.name} onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <div className="amb-cam-fallback">{cam.name}</div>}
-        <span className="amb-cam-expand"><Maximize2 size={18} strokeWidth={2} /></span>
-      </div>
+    <section className="amb-sect">
+      <div className="amb-label">Cameras</div>
+      <button type="button" className="amb-cambtn" onClick={() => setFull(true)}>
+        <Video size={26} strokeWidth={1.4} />
+        <div className="amb-cambtn-meta">
+          <span className="amb-cambtn-n">{cam.name}</span>
+          <span className="amb-cambtn-s">{offline ? "Offline" : "Tap to view live"}</span>
+        </div>
+        <Maximize2 size={20} strokeWidth={1.7} />
+      </button>
       {full && (
         <div className="cam-modal" role="dialog" aria-label={cam.name} onClick={() => setFull(false)}>
           <div className="cam-modal-inner" onClick={(e) => e.stopPropagation()}>
@@ -487,7 +493,7 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
             <ShoppingList onToast={onToast} />
           </div>
           <NotificationsWidget />
-          <CameraGlance />
+          <CameraButton />
         </div>
       </div>
 
