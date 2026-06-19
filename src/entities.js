@@ -228,6 +228,9 @@ export const ENTITIES = {
     { id: "dryer", name: "Dryer", icon: "wind", entity: "input_select.dryer_state", finished: "input_datetime.dryer_finished_timestamp" },
   ],
 
+  /* ─── Shopping list (HA todo list) ───────────────────────── */
+  shoppingList: "todo.shopping_list",
+
   /* ─── Guest WiFi (static — shown in a popup) ─────────────── */
   guestWifi: {
     ssid: "Mupfumira-GUEST",

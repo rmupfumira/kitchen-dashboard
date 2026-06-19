@@ -1923,7 +1923,7 @@ body {
   background: linear-gradient(180deg, #1C1613 0%, #110E0D 100%);
   color: var(--warm-grey); font-weight: 300;
   display: flex; flex-direction: column;
-  padding: 2.5rem 3rem 3rem; gap: 3rem;
+  padding: 1.8rem 3rem 2rem; gap: 1.6rem;
 }
 .amb-title {
   font-family: "Cinzel", "Playfair Display", Georgia, serif; font-weight: 500;
@@ -1970,8 +1970,8 @@ body {
 /* fuller layout — 2-column body that fills, + bottom status line */
 .amb-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.05fr 1fr; gap: 2.2rem 5rem; }
 .amb-col { display: flex; flex-direction: column; min-height: 0; }
-.amb-col-l { gap: 2rem; justify-content: space-between; }   /* evenly distribute Ambience / Scenes / Lights */
-.amb-col-r { gap: 2.2rem; }
+.amb-col-l { gap: 1.4rem; }
+.amb-col-r { gap: 1.5rem; }
 
 .amb-transport { display: flex; align-items: center; gap: 1.6rem; margin-top: 1.3rem; }
 .amb-tbtn { background: none; border: none; cursor: pointer; color: var(--warm-grey); padding: 0; display: grid; place-items: center; transition: color 0.2s; }
@@ -2024,6 +2024,43 @@ body {
 .amb-label-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .amb-link { display: inline-flex; align-items: center; gap: 0.45rem; background: none; border: none; cursor: pointer; font-family: var(--font); font-weight: 400; font-size: 1rem; letter-spacing: 0.01em; color: var(--champ); text-transform: none; padding: 0; opacity: 0.9; transition: opacity 0.2s; }
 .amb-link:hover { opacity: 1; }
+
+/* WLED cabinet strips — rainbow brightness sliders */
+.amb-wled { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem 1.5rem; }
+.amb-wled-item.off .amb-wled-slider, .amb-wled-item.na .amb-wled-slider { opacity: 0.35; }
+.amb-wled-top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
+.amb-wled-n { font-size: 1.05rem; font-weight: 300; color: var(--warm-grey); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.amb-wled-v { font-size: 1rem; font-weight: 300; color: var(--champ); flex-shrink: 0; }
+.amb-wled-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 99px; outline: none; cursor: pointer; background: linear-gradient(90deg, #ff5d5d, #ffae4d, #ffe24a, #5fe17a, #4ad6ff, #6e8cff, #c46eff); }
+.amb-wled-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 2px solid #1c1613; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); cursor: pointer; }
+.amb-wled-slider::-moz-range-thumb { width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 2px solid #1c1613; }
+
+/* right-column two-up row (laundry | shopping) */
+.amb-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; min-height: 0; }
+.amb-sect-grow { display: flex; flex-direction: column; min-height: 0; }
+
+/* laundry appliances */
+.amb-appls { display: flex; flex-direction: column; gap: 1rem; }
+.amb-appl { display: flex; align-items: center; gap: 0.9rem; color: var(--warm-grey); }
+.amb-appl-ic { color: var(--warm-grey); flex-shrink: 0; }
+.amb-appl.on, .amb-appl.on .amb-appl-ic { color: var(--champ); }
+.amb-appl-n { font-size: 1.15rem; font-weight: 300; }
+.amb-appl-s { font-size: 0.95rem; font-weight: 300; color: var(--warm-grey); margin-top: 0.1rem; }
+.amb-appl.on .amb-appl-s { color: var(--champ); }
+
+/* shopping list */
+.amb-shop { display: flex; flex-direction: column; gap: 0.7rem; min-height: 0; }
+.amb-shop-items { display: flex; flex-direction: column; gap: 0.15rem; overflow-y: auto; max-height: 118px; }
+.amb-shop-empty { color: rgba(158, 149, 144, 0.6); font-size: 1rem; font-weight: 300; padding: 0.4rem 0; }
+.amb-shop-i { display: flex; align-items: center; gap: 0.7rem; background: none; border: none; cursor: pointer; color: var(--warm-grey); font-family: var(--font); font-weight: 300; font-size: 1.1rem; padding: 0.35rem 0; text-align: left; }
+.amb-shop-i svg { color: var(--champ); flex-shrink: 0; }
+.amb-shop-i.done { color: rgba(158, 149, 144, 0.45); }
+.amb-shop-i.done span { text-decoration: line-through; }
+.amb-shop-i.done svg { color: rgba(158, 149, 144, 0.45); }
+.amb-shop-add { display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid rgba(158, 149, 144, 0.12); padding-top: 0.6rem; }
+.amb-shop-add input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: var(--warm-grey); font-family: var(--font); font-weight: 300; font-size: 1.05rem; }
+.amb-shop-add input::placeholder { color: rgba(158, 149, 144, 0.5); }
+.amb-shop-add button { width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; background: rgba(203, 165, 122, 0.12); color: var(--champ); display: grid; place-items: center; flex-shrink: 0; }
 
 /* ── Music Assistant browser (search · play / queue) ── */
 .mbrowse { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }

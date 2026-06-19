@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as L from "lucide-react";
 import {
   ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Music, Zap, Maximize2, X, Search, Sparkles,
+  Shirt, Check, ShoppingCart, Plus, Square, CheckSquare,
   Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake,
 } from "lucide-react";
 import { ENTITIES, ALERT_SENSORS } from "../entities";
@@ -56,10 +57,151 @@ function LightItem({ dev }) {
   return (
     <button type="button" className={"amb-light" + (on ? " on" : "") + (unavail ? " off" : "")}
       onClick={() => !unavail && call(dev.entity.split(".")[0], "toggle", {}, { entity_id: dev.entity })}>
-      <Icon size={34} strokeWidth={1.3} className="amb-light-ic" />
+      <Icon size={32} strokeWidth={1.3} className="amb-light-ic" />
       <span className="amb-light-n">{dev.name}</span>
       <span className="amb-light-s">{level}</span>
     </button>
+  );
+}
+
+/* ── one WLED strip as a rainbow brightness slider ── */
+function WledStrip({ strip }) {
+  const ent = useEntity(strip.light);
+  const call = useService();
+  const unavail = !ent || ent.state === "unavailable";
+  const on = ent?.state === "on";
+  const briPct = on ? Math.round(((ent.attributes?.brightness ?? 0) / 255) * 100) : 0;
+  const [local, setLocal] = useState(briPct);
+  const draggingRef = useRef(false);
+  const timer = useRef(null);
+  useEffect(() => { if (!draggingRef.current) setLocal(briPct); }, [briPct]);
+
+  const slide = (v) => {
+    draggingRef.current = true;
+    setLocal(v);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      if (v === 0) call("light", "turn_off", {}, { entity_id: strip.light });
+      else call("light", "turn_on", { brightness_pct: v }, { entity_id: strip.light });
+    }, 130);
+  };
+  const commit = () => { draggingRef.current = false; };
+
+  return (
+    <div className={"amb-wled-item" + (on ? "" : " off") + (unavail ? " na" : "")}>
+      <div className="amb-wled-top">
+        <span className="amb-wled-n">{strip.name}</span>
+        <span className="amb-wled-v tabular">{unavail ? "—" : on ? `${local}%` : "Off"}</span>
+      </div>
+      <input type="range" className="amb-wled-slider" min={0} max={100} value={local} disabled={unavail}
+        onChange={(e) => slide(Number(e.target.value))} onPointerUp={commit} onTouchEnd={commit} onMouseUp={commit}
+        style={{ ["--vp"]: `${local}%` }} aria-label={strip.name} />
+    </div>
+  );
+}
+
+function WledStrips({ onOpenLighting }) {
+  const strips = ENTITIES.kitchen.strips;
+  return (
+    <section className="amb-sect">
+      <div className="amb-label amb-label-row">
+        <span>Cabinet Strips</span>
+        {onOpenLighting && <button type="button" className="amb-link" onClick={onOpenLighting}><Sparkles size={16} strokeWidth={2} /> Effects &amp; colours</button>}
+      </div>
+      <div className="amb-wled">
+        {strips.map((s) => <WledStrip key={s.id} strip={s} />)}
+      </div>
+    </section>
+  );
+}
+
+/* ── laundry (washer + dryer status) ── */
+function LaundryTile({ item }) {
+  const ent = useEntity(item.entity);
+  const fin = useEntity(item.finished);
+  const Icon = L[toPascal(item.icon)] || Shirt;
+  const running = ent?.state === "running";
+  const unavail = !ent || ent.state === "unavailable";
+  const t = fin?.state ? new Date(fin.state.replace(" ", "T")).getTime() : NaN;
+  const mins = Number.isFinite(t) ? Math.round((t - Date.now()) / 60000) : null;
+  const sub = unavail ? "—"
+    : running ? (mins != null && mins > 0 ? `${mins}m left` : "Running")
+    : (ent?.state ? ent.state.charAt(0).toUpperCase() + ent.state.slice(1) : "Idle");
+
+  return (
+    <div className={"amb-appl" + (running ? " on" : "")}>
+      <Icon size={26} strokeWidth={1.4} className="amb-appl-ic" />
+      <div className="amb-appl-meta">
+        <div className="amb-appl-n">{item.name}</div>
+        <div className="amb-appl-s">{sub}</div>
+      </div>
+    </div>
+  );
+}
+
+function LaundryMini() {
+  return (
+    <section className="amb-sect amb-sect-grow">
+      <div className="amb-label">Laundry</div>
+      <div className="amb-appls">
+        {ENTITIES.laundry.map((i) => <LaundryTile key={i.id} item={i} />)}
+      </div>
+    </section>
+  );
+}
+
+/* ── shopping list (HA todo) ── */
+function ShoppingList({ onToast }) {
+  const call = useService();
+  const ent = useEntity(ENTITIES.shoppingList);
+  const [items, setItems] = useState([]);
+  const [adding, setAdding] = useState("");
+
+  const load = useCallback(async () => {
+    try {
+      const res = await call("todo", "get_items", {}, { entity_id: ENTITIES.shoppingList }, true);
+      setItems(res?.[ENTITIES.shoppingList]?.items || []);
+    } catch { /* ignore */ }
+  }, [call]);
+
+  // reload on mount and whenever the list's incomplete-count changes
+  useEffect(() => { load(); }, [load, ent?.state]);
+
+  const toggle = (it) => {
+    call("todo", "update_item", { item: it.uid || it.summary, status: it.status === "completed" ? "needs_action" : "completed" }, { entity_id: ENTITIES.shoppingList });
+    setItems((cur) => cur.map((x) => (x.uid === it.uid ? { ...x, status: x.status === "completed" ? "needs_action" : "completed" } : x)));
+  };
+  const add = () => {
+    const v = adding.trim();
+    if (!v) return;
+    call("todo", "add_item", { item: v }, { entity_id: ENTITIES.shoppingList });
+    setAdding("");
+    onToast?.("shopping-cart", `Added ${v}`);
+    setTimeout(load, 500);
+  };
+
+  return (
+    <section className="amb-sect amb-sect-grow">
+      <div className="amb-label">Shopping List</div>
+      <div className="amb-shop">
+        <div className="amb-shop-items">
+          {items.length === 0 && <div className="amb-shop-empty">Nothing on the list.</div>}
+          {items.map((it) => {
+            const done = it.status === "completed";
+            return (
+              <button type="button" key={it.uid || it.summary} className={"amb-shop-i" + (done ? " done" : "")} onClick={() => toggle(it)}>
+                {done ? <CheckSquare size={20} strokeWidth={1.6} /> : <Square size={20} strokeWidth={1.6} />}
+                <span>{it.summary}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="amb-shop-add">
+          <input value={adding} onChange={(e) => setAdding(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") add(); }} placeholder="Add an item…" />
+          <button type="button" onClick={add} aria-label="Add"><Plus size={20} strokeWidth={2} /></button>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -78,9 +220,6 @@ function AudioSection({ onToast }) {
   const art = artPath ? haUrl(artPath) : "";
   const svc = (s, d = {}) => call("media_player", s, d, { entity_id: entId });
 
-  // Responsive volume: drive a local value, debounce the service call, and sync
-  // from HA only when the user isn't actively dragging — so the thumb never
-  // snaps back to a stale round-tripped value (the old "laggy" feel).
   const entVol = Number(ent?.attributes?.volume_level);
   const entVolPct = Number.isFinite(entVol) ? Math.round(entVol * 100) : 30;
   const [localVol, setLocalVol] = useState(entVolPct);
@@ -93,11 +232,7 @@ function AudioSection({ onToast }) {
     clearTimeout(volTimer.current);
     volTimer.current = setTimeout(() => svc("volume_set", { volume_level: v / 100 }), 120);
   };
-  const commitVol = () => {
-    draggingRef.current = false;
-    clearTimeout(volTimer.current);
-    svc("volume_set", { volume_level: localVol / 100 });
-  };
+  const commitVol = () => { draggingRef.current = false; clearTimeout(volTimer.current); svc("volume_set", { volume_level: localVol / 100 }); };
 
   return (
     <section className="amb-sect">
@@ -110,12 +245,9 @@ function AudioSection({ onToast }) {
           {art ? <img src={art} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <Music size={36} strokeWidth={1.2} />}
         </div>
         <div className="amb-audio-meta">
-          <Dropdown
-            value={title}
-            sub={artist || playerName}
+          <Dropdown value={title} sub={artist || playerName}
             items={players.map((p) => ({ id: p.id, name: p.name, active: p.entity === entId }))}
-            onPick={(it) => { const p = players.find((x) => x.id === it.id); setEntId(p.entity); onToast?.("disc-3", p.name); }}
-          />
+            onPick={(it) => { const p = players.find((x) => x.id === it.id); setEntId(p.entity); onToast?.("disc-3", p.name); }} />
           <div className="amb-transport">
             <button type="button" className="amb-tbtn" onClick={() => svc("media_previous_track")} aria-label="Previous"><SkipBack size={24} strokeWidth={1.4} /></button>
             <button type="button" className="amb-tbtn play" onClick={() => svc("media_play_pause")} aria-label="Play/Pause">{playing ? <Pause size={28} strokeWidth={1.6} /> : <Play size={28} strokeWidth={1.6} />}</button>
@@ -126,14 +258,11 @@ function AudioSection({ onToast }) {
       <div className="amb-vol">
         <Volume1 size={18} strokeWidth={1.5} />
         <input type="range" className="amb-slider" min={0} max={100} value={localVol}
-          onChange={(e) => onVol(Number(e.target.value))}
-          onPointerUp={commitVol} onTouchEnd={commitVol} onMouseUp={commitVol}
+          onChange={(e) => onVol(Number(e.target.value))} onPointerUp={commitVol} onTouchEnd={commitVol} onMouseUp={commitVol}
           style={{ ["--vp"]: `${localVol}%` }} aria-label="Volume" />
         <Volume2 size={18} strokeWidth={1.5} />
       </div>
-      {browse && (
-        <MusicBrowser playerEntity={entId} players={players} onPickPlayer={setEntId} onClose={() => setBrowse(false)} onToast={onToast} />
-      )}
+      {browse && <MusicBrowser playerEntity={entId} players={players} onPickPlayer={setEntId} onClose={() => setBrowse(false)} onToast={onToast} />}
     </section>
   );
 }
@@ -200,7 +329,6 @@ function StatusStrip() {
   const cond = weather?.state;
   const WIcon = COND[cond] || Cloud;
   const temp = Number.isFinite(weather?.attributes?.temperature) ? Math.round(weather.attributes.temperature) : "—";
-
   const pvW = Number(pv?.state);
   const solar = Number.isFinite(pvW) ? (Math.round(pvW / 100) / 10).toFixed(1) : "—";
 
@@ -227,8 +355,9 @@ function StatusStrip() {
 }
 
 /**
- * Crestron/Savant-style kitchen ambience panel — monolithic, typographic, no cards.
- * KITCHEN · (Ambience + Scenes + Lights | Audio + Camera) · time/security/weather/solar.
+ * Crestron/Savant-style kitchen ambience panel — dense, typographic.
+ * Left: Ambience · Scenes · Cabinet strips (WLED) · Lights.
+ * Right: Audio · Laundry + Shopping · Front-door camera. Bottom: status line.
  */
 export default function AmbienceView({ onToast, onOpenLighting }) {
   const { entities } = useHA();
@@ -273,18 +402,15 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
             <div className="amb-label">Scenes</div>
             <div className="amb-pills">
               {ENTITIES.scenes.map((s) => (
-                <button type="button" key={s.id} className={"amb-pill" + (sceneActive(s) ? " on" : "")} onClick={() => activateScene(s)}>
-                  {s.name}
-                </button>
+                <button type="button" key={s.id} className={"amb-pill" + (sceneActive(s) ? " on" : "")} onClick={() => activateScene(s)}>{s.name}</button>
               ))}
             </div>
           </section>
 
+          <WledStrips onOpenLighting={onOpenLighting} />
+
           <section className="amb-sect">
-            <div className="amb-label amb-label-row">
-              <span>Lights</span>
-              {onOpenLighting && <button type="button" className="amb-link" onClick={onOpenLighting}><Sparkles size={16} strokeWidth={2} /> Effects &amp; colours</button>}
-            </div>
+            <div className="amb-label">Lights</div>
             <div className="amb-lights">
               {K.lights.map((d) => <LightItem key={d.id} dev={d} />)}
             </div>
@@ -293,6 +419,10 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
 
         <div className="amb-col amb-col-r">
           <AudioSection onToast={onToast} />
+          <div className="amb-row2">
+            <LaundryMini />
+            <ShoppingList onToast={onToast} />
+          </div>
           <CameraGlance />
         </div>
       </div>
