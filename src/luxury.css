@@ -1945,7 +1945,7 @@ body {
 .amb-pill.on { color: var(--champ); border-color: var(--champ); box-shadow: 0 0 10px rgba(203, 165, 122, 0.1); }
 
 /* lights — floating icon · name · level, no boxes */
-.amb-lights { display: flex; flex-wrap: wrap; gap: 3rem; }
+.amb-lights { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2rem; max-width: 460px; }
 .amb-light { background: none; border: none; cursor: pointer; padding: 0; min-width: 72px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--warm-grey); font-family: var(--font); transition: color 0.2s; }
 .amb-light-ic { color: var(--warm-grey); transition: color 0.2s; }
 .amb-light.on, .amb-light.on .amb-light-ic { color: var(--champ); }
@@ -1957,9 +1957,8 @@ body {
 /* fuller layout — 2-column body that fills, + bottom status line */
 .amb-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.05fr 1fr; gap: 2.2rem 5rem; }
 .amb-col { display: flex; flex-direction: column; min-height: 0; }
-.amb-col-l { gap: 2.4rem; }
+.amb-col-l { gap: 2rem; justify-content: space-between; }   /* evenly distribute Ambience / Scenes / Lights */
 .amb-col-r { gap: 2.2rem; }
-.amb-col-l .amb-sect:last-child { margin-top: auto; }   /* float Lights to the bottom to fill */
 
 .amb-transport { display: flex; align-items: center; gap: 1.6rem; margin-top: 1.3rem; }
 .amb-tbtn { background: none; border: none; cursor: pointer; color: var(--warm-grey); padding: 0; display: grid; place-items: center; transition: color 0.2s; }
