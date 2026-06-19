@@ -137,6 +137,26 @@ export const ENTITIES = {
       { id: "down", name: "Downlighters", icon: "lightbulb", entity: "switch.kitchen_downlighter" },
       { id: "peninsula", name: "Peninsula", icon: "lightbulb", entity: "switch.kitchen_peninsula_downlighter" },
     ],
+
+    /* ── Crestron/Savant-style Ambience panel (kitchen tab) ─────────
+       Ambience presets apply a mood to the WLED cabinet group; the light
+       row mixes on/off switches with the dimmable WLED group. Scenes use
+       the existing global ENTITIES.scenes. */
+    ambienceTarget: "light.kitchen_cabinets_strip_grp",
+    ambience: [
+      { id: "shimmer", name: "Shimmering Light", effect: "Aurora",       rgb: [255, 198, 120], bri: 80 },
+      { id: "warm",    name: "Warm Glow",        effect: "Solid",        rgb: [255, 156, 72],  bri: 70 },
+      { id: "cool",    name: "Cool White",       effect: "Solid",        rgb: [220, 234, 255], bri: 85 },
+      { id: "candle",  name: "Candlelight",      effect: "Candle Multi", rgb: [255, 140, 50],  bri: 45 },
+      { id: "party",   name: "Party",            effect: "Pride 2015",                          bri: 100 },
+      { id: "off",     name: "Off",              off: true },
+    ],
+    lights: [
+      { id: "pendants",  name: "Pendants",     icon: "lamp-ceiling", entity: "switch.kitchen_pendant" },
+      { id: "ambient",   name: "Ambient",      icon: "lightbulb",    entity: "switch.kitchen_downlighter" },
+      { id: "peninsula", name: "Peninsula",    icon: "lamp",         entity: "switch.kitchen_peninsula_downlighter" },
+      { id: "cabinets",  name: "Undercabinet", icon: "sparkles",     entity: "light.kitchen_cabinets_strip_grp", dimmable: true },
+    ],
   },
 
   /* ─── Per-room lighting (the lighting card swaps by route) ── */

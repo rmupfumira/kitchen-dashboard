@@ -30,7 +30,7 @@ import PoolView from "./components/PoolView";
 import CamerasView from "./components/CamerasView";
 import TinotendaView from "./components/TinotendaView";
 import HomeView from "./components/HomeView";
-import KitchenView from "./components/KitchenView";
+import AmbienceView from "./components/AmbienceView";
 import SettingsView from "./components/SettingsView";
 import Toast from "./components/Toast";
 import OfflineOverlay from "./components/OfflineOverlay";
@@ -133,7 +133,7 @@ export default function App() {
     <div className="lux-app">
       <Rail view={subview ? "" : view} onPick={railPick} onWifi={() => setWifiOpen(true)} />
 
-      <div className={"lux-main" + (isHome ? " home-main" : isRoom ? "" : " system")}>
+      <div className={"lux-main" + (isHome || view === "kitchen" ? " home-main" : isRoom ? "" : " system")}>
         {subview === "lighting" ? (
           <LightingView onBack={() => setSubview(null)} onToast={fireToast} />
         ) : isHome ? (
@@ -143,6 +143,8 @@ export default function App() {
             onOpenSecurity={() => setDrawerOpen(true)}
             navigate={navigate}
           />
+        ) : view === "kitchen" ? (
+          <AmbienceView onToast={fireToast} />
         ) : (
           <>
             <StatusBar
@@ -152,47 +154,35 @@ export default function App() {
             />
 
             {isRoom ? (
-              view === "kitchen" ? (
-                <>
-                  <KitchenView
-                    onToast={fireToast}
-                    onOpenLighting={() => setSubview("lighting")}
-                    onOpenSecurity={() => setDrawerOpen(true)}
-                    onOpenWeather={() => setWeatherOpen(true)}
-                  />
-                  <ScenesBar onToast={fireToast} />
-                </>
-              ) : (
-                <>
-                  <div className="lux-grid">
-                    <div className="lux-col">
-                      <CamerasCard onToast={fireToast} />
-                    </div>
-
-                    <div className="lux-col">
-                      <SecurityControls onToast={fireToast} />
-                      {climate ? (
-                        <ClimateCard acEntity={climate.ac} tempEntity={climate.temp} onToast={fireToast} />
-                      ) : (
-                        <GeyserCard onToast={fireToast} />
-                      )}
-                      <LightingCard
-                        config={ENTITIES.lighting[view]}
-                        onToast={fireToast}
-                        onOpenLighting={() => setSubview("lighting")}
-                      />
-                    </div>
-
-                    <div className="lux-col">
-                      <SolarCard />
-                      <LaundryCard />
-                      <MediaCard onToast={fireToast} />
-                    </div>
+              <>
+                <div className="lux-grid">
+                  <div className="lux-col">
+                    <CamerasCard onToast={fireToast} />
                   </div>
 
-                  <ScenesBar onToast={fireToast} />
-                </>
-              )
+                  <div className="lux-col">
+                    <SecurityControls onToast={fireToast} />
+                    {climate ? (
+                      <ClimateCard acEntity={climate.ac} tempEntity={climate.temp} onToast={fireToast} />
+                    ) : (
+                      <GeyserCard onToast={fireToast} />
+                    )}
+                    <LightingCard
+                      config={ENTITIES.lighting[view]}
+                      onToast={fireToast}
+                      onOpenLighting={() => setSubview("lighting")}
+                    />
+                  </div>
+
+                  <div className="lux-col">
+                    <SolarCard />
+                    <LaundryCard />
+                    <MediaCard onToast={fireToast} />
+                  </div>
+                </div>
+
+                <ScenesBar onToast={fireToast} />
+              </>
             ) : (
               SystemView && <SystemView onToast={fireToast} />
             )}

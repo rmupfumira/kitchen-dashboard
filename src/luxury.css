@@ -1897,3 +1897,59 @@ body {
 .set-reset { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: var(--r-md); border: none; cursor: pointer; background: var(--recess); color: var(--ink-soft); font-family: var(--font); font-size: 15px; font-weight: 600; transition: all 0.16s; }
 .set-reset:hover { background: var(--recess-2); color: var(--ink); }
 .set-note { font-size: 13px; font-weight: 500; color: var(--ink-faint); flex-shrink: 0; }
+
+/* ════════════════════════════════════════════════════════
+   AMBIENCE PANEL (kitchen) — Crestron/Savant minimalist re-skin.
+   Monolithic, typographic, no cards. Self-contained champagne palette.
+   ════════════════════════════════════════════════════════ */
+.amb {
+  --champ: #CBA57A;        /* muted champagne gold */
+  --warm-grey: #9E9590;    /* soft warm grey */
+  --hair: rgba(158, 149, 144, 0.3);
+  height: 100%; min-height: 0; overflow-y: auto;
+  background: linear-gradient(180deg, #1C1613 0%, #110E0D 100%);
+  color: var(--warm-grey); font-weight: 300;
+  display: flex; flex-direction: column;
+  padding: 2.5rem 3rem 3rem; gap: 3rem;
+}
+.amb-title {
+  font-family: "Cinzel", "Playfair Display", Georgia, serif; font-weight: 500;
+  color: var(--champ); text-align: center; letter-spacing: 0.25em; font-size: 2rem;
+}
+.amb-label { text-transform: uppercase; font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; color: var(--warm-grey); margin-bottom: 1.1rem; }
+.amb-top { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.amb-sect { min-width: 0; }
+
+/* dropdowns — no border, champagne value + thin chevron */
+.amb-dd { position: relative; }
+.amb-dd-btn { display: inline-flex; align-items: center; gap: 0.6rem; max-width: 100%; background: none; border: none; cursor: pointer; padding: 0; font-family: var(--font); font-weight: 300; font-size: 1.5rem; color: var(--champ); }
+.amb-dd-val { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.amb-chev { color: var(--warm-grey); flex-shrink: 0; transition: transform 0.2s; }
+.amb-chev.flip { transform: rotate(180deg); }
+.amb-dd-sub { font-size: 0.8rem; color: var(--warm-grey); margin-top: 0.3rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.amb-dd-list { position: absolute; top: calc(100% + 0.6rem); left: 0; z-index: 30; min-width: 230px; display: flex; flex-direction: column; background: #1a1512; border: 1px solid var(--hair); border-radius: 5px; box-shadow: 0 24px 60px -24px rgba(0,0,0,0.85); padding: 0.4rem; }
+.amb-dd-i { text-align: left; background: none; border: none; cursor: pointer; font-family: var(--font); font-weight: 300; font-size: 1rem; color: var(--warm-grey); padding: 0.7rem 0.9rem; border-radius: 4px; }
+.amb-dd-i:hover { color: var(--champ); background: rgba(203, 165, 122, 0.06); }
+.amb-dd-i.on { color: var(--champ); }
+
+/* thin volume slider — 2px track, 8px champagne thumb */
+.amb-vol { display: flex; align-items: center; gap: 0.9rem; margin-top: 1.6rem; color: var(--warm-grey); }
+.amb-slider { -webkit-appearance: none; appearance: none; flex: 1; height: 2px; border-radius: 2px; outline: none; cursor: pointer; background: linear-gradient(90deg, var(--champ) var(--vp, 50%), rgba(158,149,144,0.2) var(--vp, 50%)); }
+.amb-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: var(--champ); cursor: pointer; }
+.amb-slider::-moz-range-thumb { width: 8px; height: 8px; border-radius: 50%; background: var(--champ); border: none; }
+
+/* scene pills — hairline border, champagne when active */
+.amb-pills { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+.amb-pill { background: none; cursor: pointer; font-family: var(--font); font-weight: 300; font-size: 1rem; color: var(--warm-grey); border: 1px solid rgba(158, 149, 144, 0.3); border-radius: 999px; padding: 0.6rem 1.5rem; letter-spacing: 0.02em; transition: all 0.2s; }
+.amb-pill:hover { color: var(--champ); border-color: rgba(203, 165, 122, 0.5); }
+.amb-pill.on { color: var(--champ); border-color: var(--champ); box-shadow: 0 0 10px rgba(203, 165, 122, 0.1); }
+
+/* lights — floating icon · name · level, no boxes */
+.amb-lights { display: flex; flex-wrap: wrap; gap: 3rem; }
+.amb-light { background: none; border: none; cursor: pointer; padding: 0; min-width: 72px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--warm-grey); font-family: var(--font); transition: color 0.2s; }
+.amb-light-ic { color: var(--warm-grey); transition: color 0.2s; }
+.amb-light.on, .amb-light.on .amb-light-ic { color: var(--champ); }
+.amb-light.off { opacity: 0.4; cursor: default; }
+.amb-light-n { font-weight: 300; font-size: 0.95rem; }
+.amb-light-s { font-weight: 300; font-size: 0.8rem; color: var(--warm-grey); }
+.amb-light.on .amb-light-s { color: var(--champ); }
