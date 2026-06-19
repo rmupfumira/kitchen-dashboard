@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronRight } from "lucide-react";
 import { useHA } from "./ha/HaContext";
 import { useWakeRefresh } from "./ha/useWakeRefresh";
 import { useIdle } from "./useIdle";
@@ -83,6 +84,7 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [wifiOpen, setWifiOpen] = useState(false);
   const [weatherOpen, setWeatherOpen] = useState(false);
+  const [railOpen, setRailOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
 
@@ -110,7 +112,7 @@ export default function App() {
     setSubview(null);
   };
 
-  const railPick = (id) => navigate(VIEW_PATH[id] || "/");
+  const railPick = (id) => { navigate(VIEW_PATH[id] || "/"); setRailOpen(false); };
 
   const isHome = view === "home";
   const isRoom = ROOM_VIEWS.includes(view);
@@ -131,7 +133,13 @@ export default function App() {
 
   return (
     <div className="lux-app">
-      <Rail view={subview ? "" : view} onPick={railPick} onWifi={() => setWifiOpen(true)} />
+      {!railOpen && (
+        <button type="button" className="rail-handle" onClick={() => setRailOpen(true)} aria-label="Open menu">
+          <ChevronRight size={22} strokeWidth={2.4} />
+        </button>
+      )}
+      <div className={"rail-scrim" + (railOpen ? " open" : "")} onClick={() => setRailOpen(false)} />
+      <Rail open={railOpen} view={subview ? "" : view} onPick={railPick} onWifi={() => { setWifiOpen(true); setRailOpen(false); }} />
 
       <div className={"lux-main" + (isHome || view === "kitchen" ? " home-main" : isRoom ? "" : " system")}>
         {subview === "lighting" ? (

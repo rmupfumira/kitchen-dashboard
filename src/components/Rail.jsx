@@ -36,9 +36,9 @@ async function hardReload() {
   window.location.replace(url.toString());
 }
 
-export default function Rail({ view, onPick, onWifi }) {
+export default function Rail({ open, view, onPick, onWifi }) {
   return (
-    <nav className="lux-rail">
+    <nav className={"lux-rail" + (open ? " open" : "")}>
       {ROOMS.map(({ id, Icon, label }) => (
         <button
           key={id}

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import * as L from "lucide-react";
 import {
-  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert,
+  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Music, Zap, Maximize2, X,
   Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake,
 } from "lucide-react";
 import { ENTITIES, ALERT_SENSORS } from "../entities";
 import { useEntity, useHA } from "../ha/HaContext";
-import { useService, haAuthUrl } from "../ha/useService";
+import { useService, haUrl, haAuthUrl } from "../ha/useService";
 import { useSettings } from "../useSettings";
 
 const COND = {
@@ -26,7 +26,7 @@ function Dropdown({ value, sub, items, onPick }) {
     <div className="amb-dd">
       <button type="button" className="amb-dd-btn" onClick={() => setOpen((o) => !o)}>
         <span className="amb-dd-val">{value}</span>
-        <ChevronDown size={16} strokeWidth={1.5} className={"amb-chev" + (open ? " flip" : "")} />
+        <ChevronDown size={20} strokeWidth={1.5} className={"amb-chev" + (open ? " flip" : "")} />
       </button>
       {sub && <div className="amb-dd-sub">{sub}</div>}
       {open && (
@@ -55,14 +55,14 @@ function LightItem({ dev }) {
   return (
     <button type="button" className={"amb-light" + (on ? " on" : "") + (unavail ? " off" : "")}
       onClick={() => !unavail && call(dev.entity.split(".")[0], "toggle", {}, { entity_id: dev.entity })}>
-      <Icon size={26} strokeWidth={1.3} className="amb-light-ic" />
+      <Icon size={34} strokeWidth={1.3} className="amb-light-ic" />
       <span className="amb-light-n">{dev.name}</span>
       <span className="amb-light-s">{level}</span>
     </button>
   );
 }
 
-/* ── audio: source · now-playing · transport · thin volume ── */
+/* ── audio: album art · source · now-playing · transport · volume ── */
 function AudioSection({ onToast }) {
   const players = ENTITIES.music.players;
   const [entId, setEntId] = useState(ENTITIES.music.default);
@@ -72,6 +72,8 @@ function AudioSection({ onToast }) {
   const playerName = players.find((p) => p.entity === entId)?.name || "Speaker";
   const title = ent?.attributes?.media_title || (playing ? "Playing" : "Idle");
   const artist = ent?.attributes?.media_artist || "";
+  const artPath = ent?.attributes?.entity_picture;
+  const art = artPath ? haUrl(artPath) : "";
   const vol = Number(ent?.attributes?.volume_level);
   const volPct = Number.isFinite(vol) ? Math.round(vol * 100) : 30;
   const svc = (s, d = {}) => call("media_player", s, d, { entity_id: entId });
@@ -79,52 +81,75 @@ function AudioSection({ onToast }) {
   return (
     <section className="amb-sect">
       <div className="amb-label">Audio</div>
-      <Dropdown
-        value={title}
-        sub={artist || playerName}
-        items={players.map((p) => ({ id: p.id, name: p.name, active: p.entity === entId }))}
-        onPick={(it) => { const p = players.find((x) => x.id === it.id); setEntId(p.entity); onToast?.("disc-3", p.name); }}
-      />
-      <div className="amb-transport">
-        <button type="button" className="amb-tbtn" onClick={() => svc("media_previous_track")} aria-label="Previous"><SkipBack size={19} strokeWidth={1.4} /></button>
-        <button type="button" className="amb-tbtn play" onClick={() => svc("media_play_pause")} aria-label="Play/Pause">{playing ? <Pause size={22} strokeWidth={1.6} /> : <Play size={22} strokeWidth={1.6} />}</button>
-        <button type="button" className="amb-tbtn" onClick={() => svc("media_next_track")} aria-label="Next"><SkipForward size={19} strokeWidth={1.4} /></button>
+      <div className="amb-audio">
+        <div className="amb-art">
+          {art ? <img src={art} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <Music size={36} strokeWidth={1.2} />}
+        </div>
+        <div className="amb-audio-meta">
+          <Dropdown
+            value={title}
+            sub={artist || playerName}
+            items={players.map((p) => ({ id: p.id, name: p.name, active: p.entity === entId }))}
+            onPick={(it) => { const p = players.find((x) => x.id === it.id); setEntId(p.entity); onToast?.("disc-3", p.name); }}
+          />
+          <div className="amb-transport">
+            <button type="button" className="amb-tbtn" onClick={() => svc("media_previous_track")} aria-label="Previous"><SkipBack size={24} strokeWidth={1.4} /></button>
+            <button type="button" className="amb-tbtn play" onClick={() => svc("media_play_pause")} aria-label="Play/Pause">{playing ? <Pause size={28} strokeWidth={1.6} /> : <Play size={28} strokeWidth={1.6} />}</button>
+            <button type="button" className="amb-tbtn" onClick={() => svc("media_next_track")} aria-label="Next"><SkipForward size={24} strokeWidth={1.4} /></button>
+          </div>
+        </div>
       </div>
       <div className="amb-vol">
-        <Volume1 size={15} strokeWidth={1.5} />
+        <Volume1 size={18} strokeWidth={1.5} />
         <input type="range" className="amb-slider" min={0} max={100} value={volPct}
           onChange={(e) => svc("volume_set", { volume_level: Number(e.target.value) / 100 })}
           style={{ ["--vp"]: `${volPct}%` }} aria-label="Volume" />
-        <Volume2 size={15} strokeWidth={1.5} />
+        <Volume2 size={18} strokeWidth={1.5} />
       </div>
     </section>
   );
 }
 
-/* ── front-door camera glance ── */
+/* ── front-door camera glance (tap to enlarge) ── */
 function CameraGlance() {
   const cam = ENTITIES.cameras[0];
   const ent = useEntity(cam.entity);
   const [tick, setTick] = useState(0);
-  useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), 6000); return () => clearInterval(id); }, []);
+  const [full, setFull] = useState(false);
+  useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), full ? 2000 : 6000); return () => clearInterval(id); }, [full]);
   const path = ent?.attributes?.entity_picture;
   const src = useMemo(() => { if (!path) return ""; const u = haAuthUrl(path); return u + (u.includes("?") ? "&" : "?") + "t=" + tick; }, [path, tick]);
 
   return (
     <section className="amb-sect amb-cam-sect">
       <div className="amb-label">{cam.name}</div>
-      <div className="amb-cam">
+      <div className="amb-cam" role="button" tabIndex={0} onClick={() => setFull(true)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setFull(true); }}>
         {src ? <img src={src} alt={cam.name} onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <div className="amb-cam-fallback">{cam.name}</div>}
+        <span className="amb-cam-expand"><Maximize2 size={18} strokeWidth={2} /></span>
       </div>
+      {full && (
+        <div className="cam-modal" role="dialog" aria-label={cam.name} onClick={() => setFull(false)}>
+          <div className="cam-modal-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="cam-modal-h">
+              <span>{cam.name}</span>
+              <button type="button" className="cam-modal-x" onClick={() => setFull(false)} aria-label="Close"><X size={22} strokeWidth={2.4} /></button>
+            </div>
+            <div className="cam-modal-view">
+              {src ? <img src={src} alt={cam.name} /> : <div className="cam-fallback">{cam.name}</div>}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
 
-/* ── bottom status line: time/date · security · weather ── */
+/* ── bottom status line: time/date · security · weather · solar ── */
 function StatusStrip() {
   const { entities } = useHA();
   const { settings } = useSettings();
   const weather = useEntity(ENTITIES.weather);
+  const pv = useEntity(ENTITIES.power.pvPower);
   const [now, setNow] = useState(() => new Date());
   useEffect(() => { const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
 
@@ -148,6 +173,9 @@ function StatusStrip() {
   const WIcon = COND[cond] || Cloud;
   const temp = Number.isFinite(weather?.attributes?.temperature) ? Math.round(weather.attributes.temperature) : "—";
 
+  const pvW = Number(pv?.state);
+  const solar = Number.isFinite(pvW) ? (Math.round(pvW / 100) / 10).toFixed(1) : "—";
+
   return (
     <div className="amb-status">
       <div className="amb-stat amb-time">
@@ -155,12 +183,16 @@ function StatusStrip() {
         <span className="amb-stat-l">{dateStr}</span>
       </div>
       <div className={"amb-stat amb-sec" + (secure ? " ok" : "")}>
-        {secure ? <ShieldCheck size={24} strokeWidth={1.4} /> : <ShieldAlert size={24} strokeWidth={1.4} />}
+        {secure ? <ShieldCheck size={26} strokeWidth={1.4} /> : <ShieldAlert size={26} strokeWidth={1.4} />}
         <div><span className="amb-stat-v">{secure ? "Secure" : "Attention"}</span><span className="amb-stat-l">{secure ? "All armed" : armed ? "Door open" : "Disarmed"}</span></div>
       </div>
       <div className="amb-stat amb-wx">
-        <WIcon size={26} strokeWidth={1.4} />
+        <WIcon size={28} strokeWidth={1.4} />
         <div><span className="amb-stat-v tabular">{temp}°</span><span className="amb-stat-l">{condLabel(cond)}</span></div>
+      </div>
+      <div className="amb-stat amb-solar">
+        <Zap size={26} strokeWidth={1.4} />
+        <div><span className="amb-stat-v tabular">{solar} kW</span><span className="amb-stat-l">Solar</span></div>
       </div>
     </div>
   );
@@ -168,7 +200,7 @@ function StatusStrip() {
 
 /**
  * Crestron/Savant-style kitchen ambience panel — monolithic, typographic, no cards.
- * KITCHEN · (Ambience + Scenes + Lights | Audio + Camera) · time/security/weather.
+ * KITCHEN · (Ambience + Scenes + Lights | Audio + Camera) · time/security/weather/solar.
  */
 export default function AmbienceView({ onToast }) {
   const { entities } = useHA();

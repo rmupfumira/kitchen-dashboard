@@ -158,16 +158,28 @@ body {
 
 /* ─── shell ─────────────────────────────────────────────── */
 .lux-app {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 14px;
+  position: relative;
   padding: 14px;
   width: var(--app-w, 100vw);
   height: var(--app-h, 100vh);
 }
+/* auto-hiding rail: edge pull-handle + scrim */
+.rail-handle {
+  position: fixed; left: 0; top: 50%; transform: translateY(-50%); z-index: 180;
+  width: 28px; height: 88px; border: none; cursor: pointer;
+  background: var(--surf-1); color: var(--gold);
+  border-radius: 0 16px 16px 0; box-shadow: var(--el-1);
+  display: grid; place-items: center; transition: width 0.2s, color 0.2s, background 0.2s;
+}
+.rail-handle:hover { width: 38px; color: var(--gold-bright); background: var(--surf-2); }
+.rail-scrim { position: fixed; inset: 0; z-index: 190; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity 0.28s; }
+.rail-scrim.open { opacity: 1; pointer-events: auto; }
 
 /* ── rail — room nav with strong active state (correction 4) ── */
 .lux-rail {
+  position: fixed; top: 14px; left: 14px; bottom: 14px; width: 96px; z-index: 200;
+  transform: translateX(calc(-100% - 22px));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
   background: var(--surf-1);
   border-radius: var(--r-xl);
   box-shadow: var(--el-1);
@@ -176,10 +188,10 @@ body {
   align-items: center;
   padding: 16px 0;
   gap: 6px;
-  min-height: 0;
   overflow-y: auto;       /* safety: scroll rather than clip if the rail ever overflows */
   scrollbar-width: none;
 }
+.lux-rail.open { transform: translateX(0); box-shadow: 0 30px 80px -16px rgba(0, 0, 0, 0.85); }
 .lux-rail::-webkit-scrollbar { display: none; }
 .rail-item {
   width: 72px;
@@ -246,6 +258,7 @@ body {
   gap: 14px;
   min-width: 0;
   min-height: 0;
+  height: 100%;
 }
 /* system views (vacuum/power/geyser/…) have no scenes row — status bar + content */
 .lux-main.system { grid-template-rows: 92px minmax(0, 1fr); }
@@ -1980,3 +1993,29 @@ body {
 .amb-time-ap { font-size: 0.9rem; margin-left: 0.3rem; color: var(--warm-grey); }
 .amb-sec.ok, .amb-sec.ok .amb-stat-v { color: var(--champ); }
 .amb-wx .amb-stat-v { color: var(--champ); }
+.amb-solar .amb-stat-v { color: var(--champ); }
+
+/* ── larger type for 2 m readability + album art + camera expand ── */
+.amb-title { font-size: 2.6rem; }
+.amb-label { font-size: 1.05rem; }
+.amb-dd-btn { font-size: 2rem; }
+.amb-dd-sub { font-size: 1.05rem; }
+.amb-dd-i { font-size: 1.2rem; }
+.amb-pill { font-size: 1.3rem; padding: 0.75rem 1.9rem; }
+.amb-light-n { font-size: 1.25rem; }
+.amb-light-s { font-size: 1.05rem; }
+.amb-stat-v { font-size: 1.6rem; }
+.amb-stat-l { font-size: 1.05rem; }
+.amb-time-v { font-size: 2.8rem; }
+.amb-status { gap: 3rem; }
+.amb-dd-list { min-width: 280px; }
+.amb-lights { max-width: 520px; }
+
+.amb-audio { display: flex; align-items: center; gap: 1.5rem; }
+.amb-art { width: 104px; height: 104px; flex-shrink: 0; border-radius: 6px; overflow: hidden; background: #0c0a09; border: 1px solid var(--hair); display: grid; place-items: center; color: rgba(158, 149, 144, 0.4); }
+.amb-art img { width: 100%; height: 100%; object-fit: cover; }
+.amb-audio-meta { min-width: 0; flex: 1; }
+.amb-audio-meta .amb-transport { margin-top: 0.9rem; }
+
+.amb-cam { cursor: pointer; }
+.amb-cam-expand { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%; background: rgba(0, 0, 0, 0.45); color: #fff; display: grid; place-items: center; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0.85; }
