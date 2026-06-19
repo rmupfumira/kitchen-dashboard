@@ -2019,3 +2019,41 @@ body {
 
 .amb-cam { cursor: pointer; }
 .amb-cam-expand { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%; background: rgba(0, 0, 0, 0.45); color: #fff; display: grid; place-items: center; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0.85; }
+
+/* section label with an inline action link (Browse / Effects) */
+.amb-label-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.amb-link { display: inline-flex; align-items: center; gap: 0.45rem; background: none; border: none; cursor: pointer; font-family: var(--font); font-weight: 400; font-size: 1rem; letter-spacing: 0.01em; color: var(--champ); text-transform: none; padding: 0; opacity: 0.9; transition: opacity 0.2s; }
+.amb-link:hover { opacity: 1; }
+
+/* ── Music Assistant browser (search · play / queue) ── */
+.mbrowse { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }
+.mbrowse-panel { width: min(820px, 96%); max-height: 88%; display: flex; flex-direction: column; background: linear-gradient(180deg, #1c1613 0%, #14100e 100%); border: 1px solid rgba(203, 165, 122, 0.18); border-radius: 14px; box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.9); overflow: hidden; }
+.mbrowse-head { display: flex; align-items: center; gap: 1rem; padding: 1.3rem 1.5rem; border-bottom: 1px solid rgba(158, 149, 144, 0.12); }
+.mbrowse-search { flex: 1; display: flex; align-items: center; gap: 0.8rem; color: #9e9590; }
+.mbrowse-search input { flex: 1; background: none; border: none; outline: none; color: #f2ede6; font-family: var(--font); font-weight: 300; font-size: 1.4rem; }
+.mbrowse-search input::placeholder { color: rgba(158, 149, 144, 0.55); }
+.mbrowse-x { width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.04); color: #9e9590; display: grid; place-items: center; }
+.mbrowse-x:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.mbrowse-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.5rem; flex-wrap: wrap; }
+.mbrowse-tabs { display: inline-flex; gap: 0.5rem; }
+.mbrowse-tab { border: none; background: none; cursor: pointer; font-family: var(--font); font-weight: 400; font-size: 1.05rem; color: #9e9590; padding: 0.45rem 1.1rem; border-radius: 999px; }
+.mbrowse-tab.on { color: #cba57a; background: rgba(203, 165, 122, 0.12); }
+.mbrowse-dev { position: relative; }
+.mbrowse-dev-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.04); border: none; cursor: pointer; color: #cba57a; font-family: var(--font); font-weight: 400; font-size: 1.05rem; padding: 0.5rem 1rem; border-radius: 999px; }
+.mbrowse-dev-list { position: absolute; right: 0; top: calc(100% + 0.4rem); z-index: 5; min-width: 200px; background: #1a1512; border: 1px solid rgba(158, 149, 144, 0.18); border-radius: 8px; padding: 0.4rem; box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.85); display: flex; flex-direction: column; }
+.mbrowse-dev-list button { text-align: left; background: none; border: none; cursor: pointer; color: #9e9590; font-family: var(--font); font-weight: 300; font-size: 1.05rem; padding: 0.6rem 0.8rem; border-radius: 6px; }
+.mbrowse-dev-list button:hover { color: #cba57a; background: rgba(203, 165, 122, 0.06); }
+.mbrowse-dev-list button.on { color: #cba57a; }
+.mbrowse-results { flex: 1; overflow-y: auto; padding: 0.5rem 0.8rem 1rem; min-height: 0; }
+.mbrowse-msg { color: rgba(158, 149, 144, 0.7); font-size: 1.1rem; font-weight: 300; padding: 2.5rem 1rem; text-align: center; }
+.mbrowse-item { display: flex; align-items: center; gap: 1rem; padding: 0.6rem 0.7rem; border-radius: 10px; }
+.mbrowse-item:hover { background: rgba(255, 255, 255, 0.03); }
+.mbrowse-art { width: 56px; height: 56px; flex-shrink: 0; border-radius: 6px; overflow: hidden; background: #0c0a09; display: grid; place-items: center; color: rgba(158, 149, 144, 0.4); }
+.mbrowse-art img { width: 100%; height: 100%; object-fit: cover; }
+.mbrowse-meta { flex: 1; min-width: 0; }
+.mbrowse-name { font-size: 1.2rem; font-weight: 400; color: #f2ede6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mbrowse-sub { font-size: 1rem; font-weight: 300; color: #9e9590; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem; }
+.mbrowse-act { width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.05); color: #9e9590; display: grid; place-items: center; transition: all 0.16s; }
+.mbrowse-act:hover { color: #cba57a; background: rgba(203, 165, 122, 0.1); }
+.mbrowse-act.play { background: rgba(203, 165, 122, 0.14); color: #cba57a; }
+.mbrowse-act.play:hover { background: rgba(203, 165, 122, 0.24); }

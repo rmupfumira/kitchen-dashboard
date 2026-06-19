@@ -16,12 +16,12 @@ import { callService } from "./callService";
 export function useService() {
   const { conn, status } = useHA();
   return useCallback(
-    async (domain, service, data, target) => {
+    async (domain, service, data, target, returnResponse = false) => {
       if (status !== "connected" || !conn) {
-        console.warn("[AURORA] dropped service call — not connected", { domain, service });
+        console.warn("[Dashboard] dropped service call — not connected", { domain, service });
         return undefined;
       }
-      return callService(conn, domain, service, data, target);
+      return callService(conn, domain, service, data, target, returnResponse);
     },
     [conn, status]
   );

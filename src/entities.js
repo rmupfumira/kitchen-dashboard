@@ -106,12 +106,13 @@ export const ENTITIES = {
      the IDs below are the MA ones, so transport/queue actually work. */
   music: {
     default: "media_player.scullery_speaker",
+    configEntry: "01KTS5CA43H0PJJW8V80S33N7H", // Music Assistant config entry — needed for music_assistant.search
     players: [
-      { id: "scullery", name: "Kitchen · Scullery", entity: "media_player.scullery_speaker" },
-      { id: "all",      name: "All Speakers",        entity: "media_player.all_speakers_3" },
-      { id: "office",   name: "Office",              entity: "media_player.office_speaker" },
-      { id: "main_bed", name: "Main Bedroom",        entity: "media_player.main_bedroom_speaker" },
-      { id: "master",   name: "Master Bedroom",      entity: "media_player.master_bedroom_2_2" },
+      { id: "scullery", name: "Kitchen Speaker", entity: "media_player.scullery_speaker" },
+      { id: "all",      name: "All Speakers",    entity: "media_player.all_speakers_3" },
+      { id: "office",   name: "Office",          entity: "media_player.office_speaker" },
+      { id: "main_bed", name: "Main Bedroom",    entity: "media_player.main_bedroom_speaker" },
+      { id: "master",   name: "Master Bedroom",  entity: "media_player.master_bedroom_2_2" },
     ],
   },
 

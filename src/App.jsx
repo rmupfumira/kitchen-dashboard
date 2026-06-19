@@ -152,7 +152,7 @@ export default function App() {
             navigate={navigate}
           />
         ) : view === "kitchen" ? (
-          <AmbienceView onToast={fireToast} />
+          <AmbienceView onToast={fireToast} onOpenLighting={() => setSubview("lighting")} />
         ) : (
           <>
             <StatusBar

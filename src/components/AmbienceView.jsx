@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as L from "lucide-react";
 import {
-  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Music, Zap, Maximize2, X,
+  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Music, Zap, Maximize2, X, Search, Sparkles,
   Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake,
 } from "lucide-react";
 import { ENTITIES, ALERT_SENSORS } from "../entities";
 import { useEntity, useHA } from "../ha/HaContext";
 import { useService, haUrl, haAuthUrl } from "../ha/useService";
 import { useSettings } from "../useSettings";
+import MusicBrowser from "./MusicBrowser";
 
 const COND = {
   "clear-night": Moon, cloudy: Cloud, fog: CloudFog, hail: CloudSnow, lightning: CloudLightning,
@@ -62,10 +63,11 @@ function LightItem({ dev }) {
   );
 }
 
-/* ── audio: album art · source · now-playing · transport · volume ── */
+/* ── audio: album art · source · now-playing · transport · volume · browse ── */
 function AudioSection({ onToast }) {
   const players = ENTITIES.music.players;
   const [entId, setEntId] = useState(ENTITIES.music.default);
+  const [browse, setBrowse] = useState(false);
   const ent = useEntity(entId);
   const call = useService();
   const playing = ent?.state === "playing";
@@ -74,13 +76,35 @@ function AudioSection({ onToast }) {
   const artist = ent?.attributes?.media_artist || "";
   const artPath = ent?.attributes?.entity_picture;
   const art = artPath ? haUrl(artPath) : "";
-  const vol = Number(ent?.attributes?.volume_level);
-  const volPct = Number.isFinite(vol) ? Math.round(vol * 100) : 30;
   const svc = (s, d = {}) => call("media_player", s, d, { entity_id: entId });
+
+  // Responsive volume: drive a local value, debounce the service call, and sync
+  // from HA only when the user isn't actively dragging — so the thumb never
+  // snaps back to a stale round-tripped value (the old "laggy" feel).
+  const entVol = Number(ent?.attributes?.volume_level);
+  const entVolPct = Number.isFinite(entVol) ? Math.round(entVol * 100) : 30;
+  const [localVol, setLocalVol] = useState(entVolPct);
+  const draggingRef = useRef(false);
+  const volTimer = useRef(null);
+  useEffect(() => { if (!draggingRef.current) setLocalVol(entVolPct); }, [entVolPct]);
+  const onVol = (v) => {
+    draggingRef.current = true;
+    setLocalVol(v);
+    clearTimeout(volTimer.current);
+    volTimer.current = setTimeout(() => svc("volume_set", { volume_level: v / 100 }), 120);
+  };
+  const commitVol = () => {
+    draggingRef.current = false;
+    clearTimeout(volTimer.current);
+    svc("volume_set", { volume_level: localVol / 100 });
+  };
 
   return (
     <section className="amb-sect">
-      <div className="amb-label">Audio</div>
+      <div className="amb-label amb-label-row">
+        <span>Audio</span>
+        <button type="button" className="amb-link" onClick={() => setBrowse(true)}><Search size={16} strokeWidth={2} /> Browse</button>
+      </div>
       <div className="amb-audio">
         <div className="amb-art">
           {art ? <img src={art} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <Music size={36} strokeWidth={1.2} />}
@@ -101,11 +125,15 @@ function AudioSection({ onToast }) {
       </div>
       <div className="amb-vol">
         <Volume1 size={18} strokeWidth={1.5} />
-        <input type="range" className="amb-slider" min={0} max={100} value={volPct}
-          onChange={(e) => svc("volume_set", { volume_level: Number(e.target.value) / 100 })}
-          style={{ ["--vp"]: `${volPct}%` }} aria-label="Volume" />
+        <input type="range" className="amb-slider" min={0} max={100} value={localVol}
+          onChange={(e) => onVol(Number(e.target.value))}
+          onPointerUp={commitVol} onTouchEnd={commitVol} onMouseUp={commitVol}
+          style={{ ["--vp"]: `${localVol}%` }} aria-label="Volume" />
         <Volume2 size={18} strokeWidth={1.5} />
       </div>
+      {browse && (
+        <MusicBrowser playerEntity={entId} players={players} onPickPlayer={setEntId} onClose={() => setBrowse(false)} onToast={onToast} />
+      )}
     </section>
   );
 }
@@ -202,7 +230,7 @@ function StatusStrip() {
  * Crestron/Savant-style kitchen ambience panel — monolithic, typographic, no cards.
  * KITCHEN · (Ambience + Scenes + Lights | Audio + Camera) · time/security/weather/solar.
  */
-export default function AmbienceView({ onToast }) {
+export default function AmbienceView({ onToast, onOpenLighting }) {
   const { entities } = useHA();
   const call = useService();
   const K = ENTITIES.kitchen;
@@ -253,7 +281,10 @@ export default function AmbienceView({ onToast }) {
           </section>
 
           <section className="amb-sect">
-            <div className="amb-label">Lights</div>
+            <div className="amb-label amb-label-row">
+              <span>Lights</span>
+              {onOpenLighting && <button type="button" className="amb-link" onClick={onOpenLighting}><Sparkles size={16} strokeWidth={2} /> Effects &amp; colours</button>}
+            </div>
             <div className="amb-lights">
               {K.lights.map((d) => <LightItem key={d.id} dev={d} />)}
             </div>

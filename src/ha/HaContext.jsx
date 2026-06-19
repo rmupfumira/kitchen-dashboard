@@ -20,6 +20,8 @@ export function HaProvider({ children }) {
   const connRef = useRef(null);
   const unsubRef = useRef(null);
   const retryRef = useRef(null);
+  const pendingEntsRef = useRef(null);
+  const entFlushRef = useRef(null);
 
   // Connection lifecycle: open + subscribe + handle reconnects.
   // The library auto-retries inside createConnection, but we also catch the
@@ -44,9 +46,19 @@ export function HaProvider({ children }) {
         setStatus("error");
         setError(describeError(err));
       });
-      // initial state stream
+      // initial state stream — THROTTLED. A playing media_player streams
+      // media_position updates every second (and power sensors, etc. fire
+      // constantly); pushing every change into React state re-rendered the
+      // whole app many times a second and made cards (esp. the music card)
+      // feel laggy/unusable. Batch updates to ~6–7 Hz instead.
       unsubRef.current = subscribeEntities(conn, (next) => {
-        setEntities(next);
+        pendingEntsRef.current = next;
+        if (!entFlushRef.current) {
+          entFlushRef.current = setTimeout(() => {
+            entFlushRef.current = null;
+            setEntities(pendingEntsRef.current);
+          }, 150);
+        }
       });
       setStatus("connected");
     } catch (err) {
@@ -63,6 +75,7 @@ export function HaProvider({ children }) {
     connect();
     return () => {
       clearTimeout(retryRef.current);
+      clearTimeout(entFlushRef.current);
       try { unsubRef.current && unsubRef.current(); } catch {}
       try { connRef.current && connRef.current.close(); } catch {}
     };
