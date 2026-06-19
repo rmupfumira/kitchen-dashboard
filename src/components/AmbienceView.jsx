@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as L from "lucide-react";
 import {
-  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Music, Zap, Maximize2, X, Search, Sparkles,
-  Shirt, Check, ShoppingCart, Plus, Square, CheckSquare,
+  ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Shield, Music, Zap, Maximize2, X, Search, Sparkles,
+  Shirt, Square, CheckSquare, Plus, AlertTriangle, DoorOpen, Fence, SlidersHorizontal, Bell,
   Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake,
 } from "lucide-react";
 import { ENTITIES, ALERT_SENSORS } from "../entities";
 import { useEntity, useHA } from "../ha/HaContext";
 import { useService, haUrl, haAuthUrl } from "../ha/useService";
+import { usePersistentNotifications } from "../ha/usePersistentNotifications";
 import { useSettings } from "../useSettings";
+import { useConfirm } from "./Confirm";
 import MusicBrowser from "./MusicBrowser";
 
 const COND = {
@@ -19,6 +21,16 @@ const COND = {
 const condLabel = (s) => (s || "—").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 function toPascal(name) {
   return String(name).split(/[-_]/).map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
+}
+
+/* security state derivation (mirrors SecurityControls) */
+const UNSECURE_VERB = { alarm: "Disarm", cover: "Open", lock: "Unlock", gate: "Open" };
+function secStatus(ctl, state) {
+  const unavail = !state || state === "unavailable";
+  if (ctl.kind === "alarm") { const s = /^armed/i.test(state || ""); return { secure: s, unavail, label: s ? "Armed" : "Disarmed" }; }
+  if (ctl.kind === "cover") { const o = /^(open|opening)$/i.test(state || ""); return { secure: !o, unavail, label: o ? "Open" : "Closed" }; }
+  if (ctl.kind === "gate") { const c = (state || "").toLowerCase() === "closed"; return { secure: c, unavail, label: state || "—" }; }
+  const locked = state === "locked"; return { secure: locked, unavail, label: locked ? "Locked" : "Unlocked" };
 }
 
 /* ── minimalist dropdown ── */
@@ -34,9 +46,7 @@ function Dropdown({ value, sub, items, onPick }) {
       {open && (
         <div className="amb-dd-list">
           {items.map((it) => (
-            <button type="button" key={it.id} className={"amb-dd-i" + (it.active ? " on" : "")} onClick={() => { onPick(it); setOpen(false); }}>
-              {it.name}
-            </button>
+            <button type="button" key={it.id} className={"amb-dd-i" + (it.active ? " on" : "")} onClick={() => { onPick(it); setOpen(false); }}>{it.name}</button>
           ))}
         </div>
       )}
@@ -53,7 +63,6 @@ function LightItem({ dev }) {
   const on = ent?.state === "on";
   const bri = dev.dimmable && on ? Math.round(((ent.attributes?.brightness ?? 0) / 255) * 100) : null;
   const level = unavail ? "Offline" : dev.dimmable ? (on ? `${bri}%` : "Off") : on ? "On" : "Off";
-
   return (
     <button type="button" className={"amb-light" + (on ? " on" : "") + (unavail ? " off" : "")}
       onClick={() => !unavail && call(dev.entity.split(".")[0], "toggle", {}, { entity_id: dev.entity })}>
@@ -75,7 +84,6 @@ function WledStrip({ strip }) {
   const draggingRef = useRef(false);
   const timer = useRef(null);
   useEffect(() => { if (!draggingRef.current) setLocal(briPct); }, [briPct]);
-
   const slide = (v) => {
     draggingRef.current = true;
     setLocal(v);
@@ -86,7 +94,6 @@ function WledStrip({ strip }) {
     }, 130);
   };
   const commit = () => { draggingRef.current = false; };
-
   return (
     <div className={"amb-wled-item" + (on ? "" : " off") + (unavail ? " na" : "")}>
       <div className="amb-wled-top">
@@ -100,22 +107,30 @@ function WledStrip({ strip }) {
   );
 }
 
-function WledStrips({ onOpenLighting }) {
+/* ── cabinet strips popup (the individual strip sliders) ── */
+function StripsPopup({ onClose, onOpenLighting }) {
   const strips = ENTITIES.kitchen.strips;
   return (
-    <section className="amb-sect">
-      <div className="amb-label amb-label-row">
-        <span>Cabinet Strips</span>
-        {onOpenLighting && <button type="button" className="amb-link" onClick={onOpenLighting}><Sparkles size={16} strokeWidth={2} /> Effects &amp; colours</button>}
+    <div className="strips-modal" role="dialog" aria-label="Cabinet strips" onClick={onClose}>
+      <div className="strips-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="strips-head">
+          <span><SlidersHorizontal size={20} strokeWidth={1.8} /> Cabinet Strips</span>
+          <button type="button" className="strips-x" onClick={onClose} aria-label="Close"><X size={24} strokeWidth={2.2} /></button>
+        </div>
+        <div className="strips-grid">
+          {strips.map((s) => <WledStrip key={s.id} strip={s} />)}
+        </div>
+        {onOpenLighting && (
+          <button type="button" className="strips-effects" onClick={() => { onClose(); onOpenLighting(); }}>
+            <Sparkles size={18} strokeWidth={2} /> Effects &amp; colours
+          </button>
+        )}
       </div>
-      <div className="amb-wled">
-        {strips.map((s) => <WledStrip key={s.id} strip={s} />)}
-      </div>
-    </section>
+    </div>
   );
 }
 
-/* ── laundry (washer + dryer status) ── */
+/* ── laundry (washer + dryer) ── */
 function LaundryTile({ item }) {
   const ent = useEntity(item.entity);
   const fin = useEntity(item.finished);
@@ -124,10 +139,7 @@ function LaundryTile({ item }) {
   const unavail = !ent || ent.state === "unavailable";
   const t = fin?.state ? new Date(fin.state.replace(" ", "T")).getTime() : NaN;
   const mins = Number.isFinite(t) ? Math.round((t - Date.now()) / 60000) : null;
-  const sub = unavail ? "—"
-    : running ? (mins != null && mins > 0 ? `${mins}m left` : "Running")
-    : (ent?.state ? ent.state.charAt(0).toUpperCase() + ent.state.slice(1) : "Idle");
-
+  const sub = unavail ? "—" : running ? (mins != null && mins > 0 ? `${mins}m left` : "Running") : (ent?.state ? ent.state.charAt(0).toUpperCase() + ent.state.slice(1) : "Idle");
   return (
     <div className={"amb-appl" + (running ? " on" : "")}>
       <Icon size={26} strokeWidth={1.4} className="amb-appl-ic" />
@@ -138,14 +150,11 @@ function LaundryTile({ item }) {
     </div>
   );
 }
-
 function LaundryMini() {
   return (
     <section className="amb-sect amb-sect-grow">
       <div className="amb-label">Laundry</div>
-      <div className="amb-appls">
-        {ENTITIES.laundry.map((i) => <LaundryTile key={i.id} item={i} />)}
-      </div>
+      <div className="amb-appls">{ENTITIES.laundry.map((i) => <LaundryTile key={i.id} item={i} />)}</div>
     </section>
   );
 }
@@ -156,17 +165,13 @@ function ShoppingList({ onToast }) {
   const ent = useEntity(ENTITIES.shoppingList);
   const [items, setItems] = useState([]);
   const [adding, setAdding] = useState("");
-
   const load = useCallback(async () => {
     try {
       const res = await call("todo", "get_items", {}, { entity_id: ENTITIES.shoppingList }, true);
       setItems(res?.[ENTITIES.shoppingList]?.items || []);
     } catch { /* ignore */ }
   }, [call]);
-
-  // reload on mount and whenever the list's incomplete-count changes
   useEffect(() => { load(); }, [load, ent?.state]);
-
   const toggle = (it) => {
     call("todo", "update_item", { item: it.uid || it.summary, status: it.status === "completed" ? "needs_action" : "completed" }, { entity_id: ENTITIES.shoppingList });
     setItems((cur) => cur.map((x) => (x.uid === it.uid ? { ...x, status: x.status === "completed" ? "needs_action" : "completed" } : x)));
@@ -175,11 +180,8 @@ function ShoppingList({ onToast }) {
     const v = adding.trim();
     if (!v) return;
     call("todo", "add_item", { item: v }, { entity_id: ENTITIES.shoppingList });
-    setAdding("");
-    onToast?.("shopping-cart", `Added ${v}`);
-    setTimeout(load, 500);
+    setAdding(""); onToast?.("shopping-cart", `Added ${v}`); setTimeout(load, 500);
   };
-
   return (
     <section className="amb-sect amb-sect-grow">
       <div className="amb-label">Shopping List</div>
@@ -200,6 +202,98 @@ function ShoppingList({ onToast }) {
           <input value={adding} onChange={(e) => setAdding(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") add(); }} placeholder="Add an item…" />
           <button type="button" onClick={add} aria-label="Add"><Plus size={20} strokeWidth={2} /></button>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── security: status chips + open-door / open-gate ── */
+function SecChip({ ctl, onToast }) {
+  const ent = useEntity(ctl.statusEntity || ctl.entity);
+  const call = useService();
+  const confirm = useConfirm();
+  const Icon = L[toPascal(ctl.icon)] || Shield;
+  const { secure, unavail, label } = secStatus(ctl, ent?.state);
+  const alert = !secure && !unavail && !ctl.ignore;
+  const act = () => {
+    if (ctl.kind === "alarm") call("alarm_control_panel", secure ? "alarm_disarm" : "alarm_arm_away", {}, { entity_id: ctl.entity });
+    else if (ctl.kind === "cover" || ctl.kind === "gate") call("cover", secure ? "open_cover" : "close_cover", {}, { entity_id: ctl.entity });
+    else call("lock", secure ? "unlock" : "lock", {}, { entity_id: ctl.entity });
+  };
+  const toggle = async () => {
+    if (unavail) return;
+    if (secure) {
+      const verb = UNSECURE_VERB[ctl.kind] || "Change";
+      const ok = await confirm({ title: `${verb} ${ctl.name}?`, message: `This will ${verb.toLowerCase()} ${ctl.name.toLowerCase()} and reduce your home security.`, confirmLabel: verb, danger: true });
+      if (!ok) return;
+    }
+    onToast?.("shield", ctl.name); act();
+  };
+  return (
+    <button type="button" className={"amb-secchip" + (alert ? " alert" : secure ? " ok" : "") + (unavail ? " na" : "")} onClick={toggle}>
+      <Icon size={18} strokeWidth={1.5} />
+      <span className="amb-secchip-n">{ctl.name}</span>
+      <span className="amb-secchip-s">{unavail ? "—" : label}</span>
+    </button>
+  );
+}
+function SecurityWidget({ onToast }) {
+  const { entities } = useHA();
+  const call = useService();
+  const confirm = useConfirm();
+  const open = ENTITIES.securityControls.filter((c) => !c.ignore).filter((c) => {
+    const { secure, unavail } = secStatus(c, entities[c.statusEntity || c.entity]?.state);
+    return !secure && !unavail;
+  });
+  const allSecure = open.length === 0;
+  const fire = (e) => { const d = e.split(".")[0]; call(d, d === "automation" ? "trigger" : "turn_on", {}, { entity_id: e }); };
+  const openFront = async () => {
+    const ok = await confirm({ title: "Open the front door?", message: "This disarms the outdoor alarm, unlocks the front door, and opens the screen gate.", confirmLabel: "Open", danger: true });
+    if (!ok) return; onToast?.("door-open", "Opening front door…"); fire(ENTITIES.entryScript);
+  };
+  const openGate = async () => {
+    const ok = await confirm({ title: "Open the gate?", message: "This disarms the outdoor alarm and opens the gate.", confirmLabel: "Open", danger: true });
+    if (!ok) return; onToast?.("door-open", "Opening gate…"); fire(ENTITIES.gateScript);
+  };
+  return (
+    <section className="amb-sect">
+      <div className="amb-label amb-label-row">
+        <span>Security</span>
+        <span className={"amb-secverdict" + (allSecure ? " ok" : "")}>
+          {allSecure ? <><ShieldCheck size={16} strokeWidth={2} /> All secure</> : <><AlertTriangle size={16} strokeWidth={2} /> {open.length} open</>}
+        </span>
+      </div>
+      <div className="amb-secchips">
+        {ENTITIES.securityControls.map((c) => <SecChip key={c.id} ctl={c} onToast={onToast} />)}
+      </div>
+      <div className="amb-secact">
+        <button type="button" className="amb-secbtn" onClick={openFront}><DoorOpen size={18} strokeWidth={1.8} /> Open Front Door</button>
+        <button type="button" className="amb-secbtn" onClick={openGate}><Fence size={18} strokeWidth={1.8} /> Open Gate</button>
+      </div>
+    </section>
+  );
+}
+
+/* ── notifications (sensor alerts + HA persistent notifications) ── */
+function NotificationsWidget() {
+  const { entities } = useHA();
+  const { items, dismiss } = usePersistentNotifications();
+  const sensorAlerts = ALERT_SENSORS.filter((s) => entities[s.id]?.state === "on").map((s) => ({ id: s.id, title: s.label, cls: s.class, sensor: true }));
+  const persistent = items.map((p) => ({ id: p.notification_id, title: p.title || p.notification_id, cls: "info" }));
+  const order = { critical: 0, warning: 1, info: 2 };
+  const all = [...sensorAlerts, ...persistent].sort((a, b) => (order[a.cls] ?? 9) - (order[b.cls] ?? 9));
+  return (
+    <section className="amb-sect amb-sect-grow">
+      <div className="amb-label">Notifications</div>
+      <div className="amb-notifs">
+        {all.length === 0 && <div className="amb-notif-empty"><ShieldCheck size={18} strokeWidth={1.5} /> All clear · no alerts</div>}
+        {all.map((n) => (
+          <div key={n.id} className={"amb-notif " + n.cls}>
+            {n.cls === "info" ? <Bell size={18} strokeWidth={1.6} /> : <AlertTriangle size={18} strokeWidth={1.6} />}
+            <span className="amb-notif-t">{n.title}</span>
+            {!n.sensor && <button type="button" className="amb-notif-x" onClick={() => dismiss(n.id)} aria-label="Dismiss"><X size={16} strokeWidth={2} /></button>}
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -226,12 +320,7 @@ function AudioSection({ onToast }) {
   const draggingRef = useRef(false);
   const volTimer = useRef(null);
   useEffect(() => { if (!draggingRef.current) setLocalVol(entVolPct); }, [entVolPct]);
-  const onVol = (v) => {
-    draggingRef.current = true;
-    setLocalVol(v);
-    clearTimeout(volTimer.current);
-    volTimer.current = setTimeout(() => svc("volume_set", { volume_level: v / 100 }), 120);
-  };
+  const onVol = (v) => { draggingRef.current = true; setLocalVol(v); clearTimeout(volTimer.current); volTimer.current = setTimeout(() => svc("volume_set", { volume_level: v / 100 }), 120); };
   const commitVol = () => { draggingRef.current = false; clearTimeout(volTimer.current); svc("volume_set", { volume_level: localVol / 100 }); };
 
   return (
@@ -241,9 +330,7 @@ function AudioSection({ onToast }) {
         <button type="button" className="amb-link" onClick={() => setBrowse(true)}><Search size={16} strokeWidth={2} /> Browse</button>
       </div>
       <div className="amb-audio">
-        <div className="amb-art">
-          {art ? <img src={art} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <Music size={36} strokeWidth={1.2} />}
-        </div>
+        <div className="amb-art">{art ? <img src={art} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <Music size={36} strokeWidth={1.2} />}</div>
         <div className="amb-audio-meta">
           <Dropdown value={title} sub={artist || playerName}
             items={players.map((p) => ({ id: p.id, name: p.name, active: p.entity === entId }))}
@@ -267,7 +354,7 @@ function AudioSection({ onToast }) {
   );
 }
 
-/* ── front-door camera glance (tap to enlarge) ── */
+/* ── front-door camera glance (tap to enlarge) — compact ── */
 function CameraGlance() {
   const cam = ENTITIES.cameras[0];
   const ent = useEntity(cam.entity);
@@ -276,7 +363,6 @@ function CameraGlance() {
   useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), full ? 2000 : 6000); return () => clearInterval(id); }, [full]);
   const path = ent?.attributes?.entity_picture;
   const src = useMemo(() => { if (!path) return ""; const u = haAuthUrl(path); return u + (u.includes("?") ? "&" : "?") + "t=" + tick; }, [path, tick]);
-
   return (
     <section className="amb-sect amb-cam-sect">
       <div className="amb-label">{cam.name}</div>
@@ -291,9 +377,7 @@ function CameraGlance() {
               <span>{cam.name}</span>
               <button type="button" className="cam-modal-x" onClick={() => setFull(false)} aria-label="Close"><X size={22} strokeWidth={2.4} /></button>
             </div>
-            <div className="cam-modal-view">
-              {src ? <img src={src} alt={cam.name} /> : <div className="cam-fallback">{cam.name}</div>}
-            </div>
+            <div className="cam-modal-view">{src ? <img src={src} alt={cam.name} /> : <div className="cam-fallback">{cam.name}</div>}</div>
           </div>
         </div>
       )}
@@ -309,13 +393,11 @@ function StatusStrip() {
   const pv = useEntity(ENTITIES.power.pvPower);
   const [now, setNow] = useState(() => new Date());
   useEffect(() => { const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
-
   const h24 = now.getHours();
   const ampm = settings.clock24h ? "" : (h24 >= 12 ? "PM" : "AM");
   const hh = String(settings.clock24h ? h24 : (h24 % 12 || 12)).padStart(2, "0");
   const mm = String(now.getMinutes()).padStart(2, "0");
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
-
   const S = ENTITIES.security;
   const e = (id) => entities[id];
   const isOpen = (x) => x && /^(open|opening)$/i.test(x.state);
@@ -325,13 +407,11 @@ function StatusStrip() {
   const allClosed = !isOpen(e(S.garage)) && !isOpen(e(S.gate)) && !isOpen(e(S.screenGate)) && isLocked(e(S.entArea)) && isLocked(e(S.frontDoorLock));
   const hasCritical = ALERT_SENSORS.some((s) => s.class === "critical" && entities[s.id]?.state === "on");
   const secure = armed && allClosed && !hasCritical;
-
   const cond = weather?.state;
   const WIcon = COND[cond] || Cloud;
   const temp = Number.isFinite(weather?.attributes?.temperature) ? Math.round(weather.attributes.temperature) : "—";
   const pvW = Number(pv?.state);
   const solar = Number.isFinite(pvW) ? (Math.round(pvW / 100) / 10).toFixed(1) : "—";
-
   return (
     <div className="amb-status">
       <div className="amb-stat amb-time">
@@ -355,15 +435,16 @@ function StatusStrip() {
 }
 
 /**
- * Crestron/Savant-style kitchen ambience panel — dense, typographic.
- * Left: Ambience · Scenes · Cabinet strips (WLED) · Lights.
- * Right: Audio · Laundry + Shopping · Front-door camera. Bottom: status line.
+ * Crestron/Savant-style kitchen ambience panel.
+ * Left: Ambience · Scenes · Lights (+ Strips popup) · Security.
+ * Right: Audio · Laundry + Shopping · Notifications · Camera. Bottom: status line.
  */
 export default function AmbienceView({ onToast, onOpenLighting }) {
   const { entities } = useHA();
   const call = useService();
   const K = ENTITIES.kitchen;
   const [ambId, setAmbId] = useState(K.ambience[0].id);
+  const [stripsOpen, setStripsOpen] = useState(false);
   const ambName = K.ambience.find((a) => a.id === ambId)?.name || "—";
 
   const applyAmbience = (a) => {
@@ -407,14 +488,15 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
             </div>
           </section>
 
-          <WledStrips onOpenLighting={onOpenLighting} />
-
           <section className="amb-sect">
-            <div className="amb-label">Lights</div>
-            <div className="amb-lights">
-              {K.lights.map((d) => <LightItem key={d.id} dev={d} />)}
+            <div className="amb-label amb-label-row">
+              <span>Lights</span>
+              <button type="button" className="amb-link" onClick={() => setStripsOpen(true)}><SlidersHorizontal size={16} strokeWidth={2} /> Cabinet strips</button>
             </div>
+            <div className="amb-lights">{K.lights.map((d) => <LightItem key={d.id} dev={d} />)}</div>
           </section>
+
+          <SecurityWidget onToast={onToast} />
         </div>
 
         <div className="amb-col amb-col-r">
@@ -423,11 +505,14 @@ export default function AmbienceView({ onToast, onOpenLighting }) {
             <LaundryMini />
             <ShoppingList onToast={onToast} />
           </div>
+          <NotificationsWidget />
           <CameraGlance />
         </div>
       </div>
 
       <StatusStrip />
+
+      {stripsOpen && <StripsPopup onClose={() => setStripsOpen(false)} onOpenLighting={onOpenLighting} />}
     </div>
   );
 }

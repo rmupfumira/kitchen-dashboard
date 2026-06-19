@@ -1970,8 +1970,8 @@ body {
 /* fuller layout — 2-column body that fills, + bottom status line */
 .amb-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.05fr 1fr; gap: 2.2rem 5rem; }
 .amb-col { display: flex; flex-direction: column; min-height: 0; }
-.amb-col-l { gap: 1.4rem; }
-.amb-col-r { gap: 1.5rem; }
+.amb-col-l { gap: 1.1rem; }
+.amb-col-r { gap: 1.3rem; }
 
 .amb-transport { display: flex; align-items: center; gap: 1.6rem; margin-top: 1.3rem; }
 .amb-tbtn { background: none; border: none; cursor: pointer; color: var(--warm-grey); padding: 0; display: grid; place-items: center; transition: color 0.2s; }
@@ -1979,7 +1979,7 @@ body {
 .amb-tbtn.play { color: var(--champ); }
 
 .amb-cam-sect { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.amb-cam { flex: 1; min-height: 140px; margin-top: 0.3rem; position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--hair); background: #0c0a09; }
+.amb-cam { flex: 1; min-height: 120px; margin-top: 0.3rem; position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--hair); background: #0c0a09; }
 .amb-cam img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .amb-cam-fallback { width: 100%; height: 100%; display: grid; place-items: center; color: rgba(158, 149, 144, 0.5); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; }
 
@@ -2061,6 +2061,46 @@ body {
 .amb-shop-add input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: var(--warm-grey); font-family: var(--font); font-weight: 300; font-size: 1.05rem; }
 .amb-shop-add input::placeholder { color: rgba(158, 149, 144, 0.5); }
 .amb-shop-add button { width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; background: rgba(203, 165, 122, 0.12); color: var(--champ); display: grid; place-items: center; flex-shrink: 0; }
+
+/* cabinet strips popup (individual WLED sliders) */
+.strips-modal { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }
+.strips-panel { width: min(680px, 94%); background: linear-gradient(180deg, #1c1613 0%, #14100e 100%); border: 1px solid rgba(203, 165, 122, 0.18); border-radius: 14px; box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.9); padding: 1.6rem 1.8rem 1.8rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.strips-head { display: flex; align-items: center; justify-content: space-between; }
+.strips-head > span { display: inline-flex; align-items: center; gap: 0.7rem; font-size: 1.4rem; font-weight: 300; color: #cba57a; }
+.strips-x { width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.04); color: #9e9590; display: grid; place-items: center; }
+.strips-x:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.strips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem 2rem; }
+.strips-effects { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(203, 165, 122, 0.1); border: none; cursor: pointer; color: #cba57a; font-family: var(--font); font-weight: 400; font-size: 1.1rem; padding: 0.7rem 1.3rem; border-radius: 999px; }
+.strips-effects:hover { background: rgba(203, 165, 122, 0.18); }
+
+/* security widget */
+.amb-secverdict { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 1rem; font-weight: 400; color: var(--warm-grey); text-transform: none; letter-spacing: 0.01em; }
+.amb-secverdict.ok { color: var(--champ); }
+.amb-secchips { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.2rem; margin-bottom: 0.8rem; }
+.amb-secchip { display: flex; align-items: center; gap: 0.6rem; background: none; border: none; cursor: pointer; padding: 0.15rem 0; color: var(--warm-grey); font-family: var(--font); text-align: left; min-width: 0; }
+.amb-secchip > svg { flex-shrink: 0; color: var(--warm-grey); }
+.amb-secchip-n { font-size: 1.05rem; font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.amb-secchip-s { font-size: 0.92rem; font-weight: 300; color: rgba(158, 149, 144, 0.7); flex-shrink: 0; }
+.amb-secchip.ok > svg, .amb-secchip.ok .amb-secchip-s { color: var(--champ); }
+.amb-secchip.alert > svg, .amb-secchip.alert .amb-secchip-n, .amb-secchip.alert .amb-secchip-s { color: #e0a36a; }
+.amb-secchip.na { opacity: 0.4; }
+.amb-secact { display: flex; gap: 1rem; }
+.amb-secbtn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(203, 165, 122, 0.1); border: 1px solid rgba(203, 165, 122, 0.25); cursor: pointer; color: var(--champ); font-family: var(--font); font-weight: 400; font-size: 1.05rem; padding: 0.7rem 1rem; border-radius: 10px; transition: all 0.16s; }
+.amb-secbtn:hover { background: rgba(203, 165, 122, 0.18); }
+
+/* notifications */
+.amb-notifs { display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; max-height: 112px; }
+.amb-notif-empty { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(158, 149, 144, 0.7); font-size: 1.05rem; font-weight: 300; }
+.amb-notif-empty svg { color: var(--champ); }
+.amb-notif { display: flex; align-items: center; gap: 0.7rem; color: var(--warm-grey); font-weight: 300; }
+.amb-notif > svg { flex-shrink: 0; }
+.amb-notif.critical > svg { color: #e06a6a; }
+.amb-notif.warning > svg { color: #e0a36a; }
+.amb-notif.info > svg { color: var(--champ); }
+.amb-notif-t { flex: 1; min-width: 0; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.amb-notif.critical .amb-notif-t, .amb-notif.warning .amb-notif-t { color: #f2ede6; }
+.amb-notif-x { width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.04); color: var(--warm-grey); display: grid; place-items: center; flex-shrink: 0; }
+.amb-notif-x:hover { color: #fff; }
 
 /* ── Music Assistant browser (search · play / queue) ── */
 .mbrowse { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }
