@@ -383,3 +383,16 @@ export const ALERT_SENSORS = [
   { id: "binary_sensor.zone_out_garage_open", class: "warning", label: "Garage front" },
   { id: "binary_sensor.downstairs_hallway_door_contact", class: "info", label: "Downstairs hallway door" },
 ];
+
+/* Common household items for the kitchen shopping-list quick-add popup —
+   tap to add without typing. Edit freely; purely a UI convenience (the list
+   itself is the HA todo above). Grouped by aisle for fast scanning. */
+export const SHOPPING_SUGGESTIONS = [
+  { cat: "Dairy & Eggs", items: ["Milk", "Eggs", "Butter", "Cheese", "Yoghurt", "Cream"] },
+  { cat: "Bakery", items: ["Bread", "Rolls", "Wraps"] },
+  { cat: "Fruit & Veg", items: ["Bananas", "Apples", "Tomatoes", "Onions", "Potatoes", "Avocados", "Lettuce", "Lemons", "Carrots"] },
+  { cat: "Meat", items: ["Chicken", "Beef mince", "Steak", "Fish", "Bacon", "Boerewors"] },
+  { cat: "Pantry", items: ["Rice", "Pasta", "Maize meal", "Flour", "Sugar", "Salt", "Cooking oil", "Cereal", "Coffee", "Tea", "Peanut butter"] },
+  { cat: "Household", items: ["Toilet paper", "Paper towel", "Dishwashing liquid", "Washing powder", "Bin bags", "Cling wrap", "Foil"] },
+  { cat: "Drinks & Snacks", items: ["Juice", "Water", "Soft drinks", "Chips", "Chocolate", "Biscuits"] },
+];

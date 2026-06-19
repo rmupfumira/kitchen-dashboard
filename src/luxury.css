@@ -2063,10 +2063,30 @@ body {
 .amb-shop-i.done { color: rgba(158, 149, 144, 0.45); }
 .amb-shop-i.done span { text-decoration: line-through; }
 .amb-shop-i.done svg { color: rgba(158, 149, 144, 0.45); }
-.amb-shop-add { display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid rgba(158, 149, 144, 0.12); padding-top: 0.6rem; }
-.amb-shop-add input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: var(--warm-grey); font-family: var(--font); font-weight: 300; font-size: 1.05rem; }
-.amb-shop-add input::placeholder { color: rgba(158, 149, 144, 0.5); }
-.amb-shop-add button { width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; background: rgba(203, 165, 122, 0.12); color: var(--champ); display: grid; place-items: center; flex-shrink: 0; }
+.amb-shop-addbtn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; width: 100%; border: 1px dashed rgba(203, 165, 122, 0.3); background: rgba(203, 165, 122, 0.06); border-radius: 9px; cursor: pointer; color: var(--champ); font-family: var(--font); font-weight: 400; font-size: 1.05rem; padding: 0.55rem; margin-top: 0.5rem; transition: all 0.16s; }
+.amb-shop-addbtn:hover { background: rgba(203, 165, 122, 0.12); border-color: rgba(203, 165, 122, 0.5); }
+
+/* quick-add popup (common household items, tap to add) */
+.shop-modal { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }
+.shop-panel { width: min(720px, 96%); max-height: 88%; display: flex; flex-direction: column; background: linear-gradient(180deg, #1c1613 0%, #14100e 100%); border: 1px solid rgba(203, 165, 122, 0.18); border-radius: 14px; box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.9); overflow: hidden; }
+.shop-head { display: flex; align-items: center; justify-content: space-between; padding: 1.3rem 1.5rem 1rem; }
+.shop-head > span { display: inline-flex; align-items: center; gap: 0.7rem; font-size: 1.35rem; font-weight: 300; color: #cba57a; }
+.shop-x { width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.04); color: #9e9590; display: grid; place-items: center; }
+.shop-x:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.shop-custom { display: flex; align-items: center; gap: 0.7rem; padding: 0 1.5rem 1.1rem; }
+.shop-custom input { flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(158, 149, 144, 0.18); border-radius: 9px; outline: none; color: #f2ede6; font-family: var(--font); font-weight: 300; font-size: 1.2rem; padding: 0.7rem 1rem; }
+.shop-custom input::placeholder { color: rgba(158, 149, 144, 0.5); }
+.shop-custom input:focus { border-color: rgba(203, 165, 122, 0.45); }
+.shop-custom button { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(203, 165, 122, 0.16); border: 1px solid rgba(203, 165, 122, 0.4); border-radius: 9px; cursor: pointer; color: #cba57a; font-family: var(--font); font-weight: 400; font-size: 1.1rem; padding: 0.7rem 1.2rem; flex-shrink: 0; }
+.shop-custom button:disabled { opacity: 0.4; cursor: default; }
+.shop-cats { overflow-y: auto; padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.3rem; }
+.shop-cat-h { font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-grey); margin-bottom: 0.7rem; }
+.shop-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.shop-chip { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(158, 149, 144, 0.18); border-radius: 999px; cursor: pointer; color: #e9e3da; font-family: var(--font); font-weight: 300; font-size: 1.1rem; padding: 0.5rem 1rem; transition: all 0.13s; }
+.shop-chip svg { color: var(--champ); }
+.shop-chip:hover { border-color: rgba(203, 165, 122, 0.5); background: rgba(203, 165, 122, 0.1); }
+.shop-chip.added { color: rgba(158, 149, 144, 0.55); border-color: rgba(158, 149, 144, 0.1); background: rgba(255, 255, 255, 0.015); cursor: default; }
+.shop-chip.added svg { color: #5fb87a; }
 
 /* cabinet strips popup (individual WLED sliders) */
 .strips-modal { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 4vh 4vw; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: led-fade 0.16s ease; }

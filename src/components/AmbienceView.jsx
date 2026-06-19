@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as L from "lucide-react";
 import {
   ChevronDown, Volume1, Volume2, SkipBack, SkipForward, Play, Pause, ShieldCheck, ShieldAlert, Shield, Music, Zap, Maximize2, X, Search, Sparkles, Video,
-  Shirt, Square, CheckSquare, Plus, AlertTriangle, DoorOpen, Fence, SlidersHorizontal, Bell,
+  Shirt, Square, CheckSquare, Plus, AlertTriangle, DoorOpen, Fence, SlidersHorizontal, Bell, ShoppingCart, Check,
   Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudSun, Wind, Snowflake,
 } from "lucide-react";
-import { ENTITIES, ALERT_SENSORS } from "../entities";
+import { ENTITIES, ALERT_SENSORS, SHOPPING_SUGGESTIONS } from "../entities";
 import { useEntity, useHA } from "../ha/HaContext";
 import { useService, haUrl, haAuthUrl } from "../ha/useService";
 import { usePersistentNotifications } from "../ha/usePersistentNotifications";
@@ -159,12 +159,50 @@ function LaundryMini() {
   );
 }
 
+/* ── add-items popup: tap common household items (no typing) + a custom field ── */
+function QuickAddPopup({ existing, onAdd, onClose }) {
+  const [custom, setCustom] = useState("");
+  const have = new Set(existing.map((s) => (s || "").trim().toLowerCase()));
+  const addCustom = () => { const v = custom.trim(); if (!v) return; onAdd(v); setCustom(""); };
+  return (
+    <div className="shop-modal" role="dialog" aria-label="Add to shopping list" onClick={onClose}>
+      <div className="shop-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="shop-head">
+          <span><ShoppingCart size={20} strokeWidth={1.8} /> Add to list</span>
+          <button type="button" className="shop-x" onClick={onClose} aria-label="Close"><X size={24} strokeWidth={2.2} /></button>
+        </div>
+        <div className="shop-custom">
+          <input value={custom} onChange={(e) => setCustom(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addCustom(); }} placeholder="Custom item — e.g. Milk 2L, dog food…" />
+          <button type="button" onClick={addCustom} disabled={!custom.trim()}><Plus size={20} strokeWidth={2.2} /> Add</button>
+        </div>
+        <div className="shop-cats">
+          {SHOPPING_SUGGESTIONS.map((cat) => (
+            <div className="shop-cat" key={cat.cat}>
+              <div className="shop-cat-h">{cat.cat}</div>
+              <div className="shop-chips">
+                {cat.items.map((name) => {
+                  const added = have.has(name.toLowerCase());
+                  return (
+                    <button type="button" key={name} className={"shop-chip" + (added ? " added" : "")} onClick={() => !added && onAdd(name)}>
+                      {added ? <Check size={15} strokeWidth={2.6} /> : <Plus size={15} strokeWidth={2.6} />}{name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── shopping list (HA todo) ── */
 function ShoppingList({ onToast }) {
   const call = useService();
   const ent = useEntity(ENTITIES.shoppingList);
   const [items, setItems] = useState([]);
-  const [adding, setAdding] = useState("");
+  const [quickOpen, setQuickOpen] = useState(false);
   const load = useCallback(async () => {
     try {
       const res = await call("todo", "get_items", {}, { entity_id: ENTITIES.shoppingList }, true);
@@ -176,11 +214,14 @@ function ShoppingList({ onToast }) {
     call("todo", "update_item", { item: it.uid || it.summary, status: it.status === "completed" ? "needs_action" : "completed" }, { entity_id: ENTITIES.shoppingList });
     setItems((cur) => cur.map((x) => (x.uid === it.uid ? { ...x, status: x.status === "completed" ? "needs_action" : "completed" } : x)));
   };
-  const add = () => {
-    const v = adding.trim();
+  const addItem = (name) => {
+    const v = (name || "").trim();
     if (!v) return;
+    if (items.some((x) => (x.summary || "").trim().toLowerCase() === v.toLowerCase() && x.status !== "completed")) return; // skip dupes
     call("todo", "add_item", { item: v }, { entity_id: ENTITIES.shoppingList });
-    setAdding(""); onToast?.("shopping-cart", `Added ${v}`); setTimeout(load, 500);
+    setItems((cur) => [...cur, { uid: `tmp-${v}-${cur.length}`, summary: v, status: "needs_action" }]); // optimistic
+    onToast?.("shopping-cart", `Added ${v}`);
+    setTimeout(load, 600);
   };
   return (
     <section className="amb-sect amb-sect-grow">
@@ -198,11 +239,11 @@ function ShoppingList({ onToast }) {
             );
           })}
         </div>
-        <div className="amb-shop-add">
-          <input value={adding} onChange={(e) => setAdding(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") add(); }} placeholder="Add an item…" />
-          <button type="button" onClick={add} aria-label="Add"><Plus size={20} strokeWidth={2} /></button>
-        </div>
+        <button type="button" className="amb-shop-addbtn" onClick={() => setQuickOpen(true)}>
+          <Plus size={18} strokeWidth={2.2} /> Add items
+        </button>
       </div>
+      {quickOpen && <QuickAddPopup existing={items.map((i) => i.summary || "")} onAdd={addItem} onClose={() => setQuickOpen(false)} />}
     </section>
   );
 }
