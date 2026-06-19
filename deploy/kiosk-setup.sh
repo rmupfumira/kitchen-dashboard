@@ -25,12 +25,8 @@
 # ──────────────────────────────────────────────────────────────
 set -euo pipefail
 
-URL="${1:-}"
-if [[ -z "$URL" ]]; then
-  echo "Usage: $0 <dashboard-url>" >&2
-  echo "Example: $0 http://192.168.1.140:8080" >&2
-  exit 2
-fi
+# Kitchen panel → kitchen-dashboard container (port 8080). Pass a URL to override.
+URL="${1:-http://192.168.1.140:8080/kitchen}"
 
 echo "▸ Installing chromium-browser + unclutter…"
 sudo apt-get update -qq
