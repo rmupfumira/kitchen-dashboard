@@ -2182,3 +2182,12 @@ body {
 .mbrowse-act:hover { color: #cba57a; background: rgba(203, 165, 122, 0.1); }
 .mbrowse-act.play { background: rgba(203, 165, 122, 0.14); color: #cba57a; }
 .mbrowse-act.play:hover { background: rgba(203, 165, 122, 0.24); }
+
+/* radio presets (one-tap stations on the Radio tab) */
+.mbrowse-presets { padding: 0.4rem 0.7rem 1rem; }
+.mbrowse-presets-h { font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: #9e9590; margin-bottom: 0.9rem; }
+.mbrowse-presets-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.mbrowse-preset { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(158, 149, 144, 0.18); border-radius: 999px; cursor: pointer; color: #e9e3da; font-family: var(--font); font-weight: 300; font-size: 1.15rem; padding: 0.6rem 1.15rem; transition: all 0.13s; }
+.mbrowse-preset svg { color: #cba57a; }
+.mbrowse-preset:hover { border-color: rgba(203, 165, 122, 0.5); background: rgba(203, 165, 122, 0.1); }
+.mbrowse-presets-hint { margin-top: 1rem; font-size: 1rem; font-weight: 300; color: rgba(158, 149, 144, 0.6); }

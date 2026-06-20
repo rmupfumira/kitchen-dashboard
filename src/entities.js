@@ -114,6 +114,14 @@ export const ENTITIES = {
       { id: "main_bed", name: "Main Bedroom",    entity: "media_player.main_bedroom_speaker" },
       { id: "master",   name: "Master Bedroom",  entity: "media_player.master_bedroom_2_2" },
     ],
+    /* One-tap radio presets (kitchen music browser → Radio tab). Each entry is
+       just a station name searched via music_assistant (radio) and the top hit
+       is played — needs the free "Radio Browser" provider enabled in Music
+       Assistant. Edit freely; reorder/rename to taste. */
+    radioPresets: [
+      "Jacaranda FM", "947", "5FM", "Metro FM", "KFM 94.5", "East Coast Radio",
+      "Radio 702", "SAfm", "Gagasi FM", "RSG", "Smile 90.4 FM", "Classic FM",
+    ],
   },
 
   /* ─── Kitchen lighting ───────────────────────────────────── */

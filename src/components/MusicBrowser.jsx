@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, X, Play, ListPlus, Speaker, Music } from "lucide-react";
+import { Search, X, Play, ListPlus, Speaker, Music, Radio } from "lucide-react";
 import { ENTITIES } from "../entities";
 import { useService } from "../ha/useService";
 
@@ -7,6 +7,7 @@ const TABS = [
   { id: "track", label: "Songs", key: "tracks" },
   { id: "album", label: "Albums", key: "albums" },
   { id: "playlist", label: "Playlists", key: "playlists" },
+  { id: "radio", label: "Radio", key: "radio" },
 ];
 
 /**
@@ -33,7 +34,7 @@ export default function MusicBrowser({ playerEntity, players, onPickPlayer, onCl
       try {
         const res = await call(
           "music_assistant", "search",
-          { config_entry_id: ENTITIES.music.configEntry, name: q, media_type: ["track", "album", "playlist"], limit: 24 },
+          { config_entry_id: ENTITIES.music.configEntry, name: q, media_type: ["track", "album", "playlist", "radio"], limit: 24 },
           undefined, true,
         );
         setResults(res || {});
@@ -51,8 +52,28 @@ export default function MusicBrowser({ playerEntity, players, onPickPlayer, onCl
     onToast?.(enqueue === "add" ? "list-plus" : "play", `${enqueue === "add" ? "Queued" : "Playing"} · ${item.name}`);
   };
 
+  // One-tap preset: find the station by name and play its top hit.
+  const playPreset = async (name) => {
+    try {
+      const res = await call(
+        "music_assistant", "search",
+        { config_entry_id: ENTITIES.music.configEntry, name, media_type: ["radio"], limit: 1 },
+        undefined, true,
+      );
+      const station = res?.radio?.[0];
+      if (!station) { onToast?.("radio", `No station found for ${name}`); return; }
+      call("music_assistant", "play_media", { media_id: station.uri, enqueue: "play" }, { entity_id: playerEntity });
+      onToast?.("radio", `Playing · ${station.name}`);
+    } catch {
+      onToast?.("radio", "Couldn't start radio (enable Radio Browser in Music Assistant)");
+    }
+  };
+
   const key = TABS.find((t) => t.id === tab)?.key;
   const items = results?.[key] || [];
+  const isRadio = tab === "radio";
+  const presets = ENTITIES.music.radioPresets || [];
+  const showPresets = isRadio && !q.trim() && presets.length > 0;
 
   return (
     <div className="mbrowse" role="dialog" aria-label="Music browser" onClick={onClose}>
@@ -60,7 +81,7 @@ export default function MusicBrowser({ playerEntity, players, onPickPlayer, onCl
         <div className="mbrowse-head">
           <div className="mbrowse-search">
             <Search size={22} strokeWidth={1.6} />
-            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search songs, albums, playlists…" />
+            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={isRadio ? "Search radio stations…" : "Search songs, albums, playlists…"} />
           </div>
           <button type="button" className="mbrowse-x" onClick={onClose} aria-label="Close"><X size={24} strokeWidth={2.2} /></button>
         </div>
@@ -86,19 +107,32 @@ export default function MusicBrowser({ playerEntity, players, onPickPlayer, onCl
         </div>
 
         <div className="mbrowse-results">
+          {showPresets && (
+            <div className="mbrowse-presets">
+              <div className="mbrowse-presets-h">Favourite stations</div>
+              <div className="mbrowse-presets-chips">
+                {presets.map((name) => (
+                  <button type="button" key={name} className="mbrowse-preset" onClick={() => playPreset(name)}>
+                    <Radio size={16} strokeWidth={1.8} />{name}
+                  </button>
+                ))}
+              </div>
+              <div className="mbrowse-presets-hint">…or search for any station above.</div>
+            </div>
+          )}
           {loading && <div className="mbrowse-msg">Searching…</div>}
-          {!loading && !results && <div className="mbrowse-msg">Type to search your music library.</div>}
-          {!loading && results && items.length === 0 && <div className="mbrowse-msg">No {key} found for “{q}”.</div>}
+          {!loading && !showPresets && !results && <div className="mbrowse-msg">Type to search your music library.</div>}
+          {!loading && results && items.length === 0 && <div className="mbrowse-msg">No {isRadio ? "stations" : key} found for “{q}”.</div>}
           {!loading && items.map((it) => (
             <div className="mbrowse-item" key={it.uri}>
               <div className="mbrowse-art">
-                {it.image ? <img src={it.image} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <Music size={22} strokeWidth={1.3} />}
+                {it.image ? <img src={it.image} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : (isRadio ? <Radio size={22} strokeWidth={1.3} /> : <Music size={22} strokeWidth={1.3} />)}
               </div>
               <div className="mbrowse-meta">
                 <div className="mbrowse-name">{it.name}</div>
-                <div className="mbrowse-sub">{(it.artists?.map((a) => a.name).join(", ")) || (tab === "playlist" ? "Playlist" : tab === "album" ? "Album" : "")}</div>
+                <div className="mbrowse-sub">{isRadio ? "Radio station" : (it.artists?.map((a) => a.name).join(", ")) || (tab === "playlist" ? "Playlist" : tab === "album" ? "Album" : "")}</div>
               </div>
-              <button type="button" className="mbrowse-act" onClick={() => play(it, "add")} aria-label="Add to queue" title="Add to queue"><ListPlus size={24} strokeWidth={1.6} /></button>
+              {!isRadio && <button type="button" className="mbrowse-act" onClick={() => play(it, "add")} aria-label="Add to queue" title="Add to queue"><ListPlus size={24} strokeWidth={1.6} /></button>}
               <button type="button" className="mbrowse-act play" onClick={() => play(it, "play")} aria-label="Play now" title="Play now"><Play size={24} strokeWidth={1.8} /></button>
             </div>
           ))}
