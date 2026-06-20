@@ -52,8 +52,16 @@ export default function MusicBrowser({ playerEntity, players, onPickPlayer, onCl
     onToast?.(enqueue === "add" ? "list-plus" : "play", `${enqueue === "add" ? "Queued" : "Playing"} · ${item.name}`);
   };
 
-  // One-tap preset: find the station by name and play its top hit.
-  const playPreset = async (name) => {
+  // One-tap preset: a pinned station (uri) plays instantly; a bare name falls
+  // back to a search and plays the top hit.
+  const playPreset = async (p) => {
+    const name = typeof p === "string" ? p : p.name;
+    const uri = typeof p === "object" ? p.uri : null;
+    if (uri) {
+      call("music_assistant", "play_media", { media_id: uri, enqueue: "play" }, { entity_id: playerEntity });
+      onToast?.("radio", `Playing · ${name}`);
+      return;
+    }
     try {
       const res = await call(
         "music_assistant", "search",
@@ -111,11 +119,14 @@ export default function MusicBrowser({ playerEntity, players, onPickPlayer, onCl
             <div className="mbrowse-presets">
               <div className="mbrowse-presets-h">Favourite stations</div>
               <div className="mbrowse-presets-chips">
-                {presets.map((name) => (
-                  <button type="button" key={name} className="mbrowse-preset" onClick={() => playPreset(name)}>
-                    <Radio size={16} strokeWidth={1.8} />{name}
-                  </button>
-                ))}
+                {presets.map((p) => {
+                  const name = typeof p === "string" ? p : p.name;
+                  return (
+                    <button type="button" key={name} className="mbrowse-preset" onClick={() => playPreset(p)}>
+                      <Radio size={16} strokeWidth={1.8} />{name}
+                    </button>
+                  );
+                })}
               </div>
               <div className="mbrowse-presets-hint">…or search for any station above.</div>
             </div>

@@ -114,13 +114,23 @@ export const ENTITIES = {
       { id: "main_bed", name: "Main Bedroom",    entity: "media_player.main_bedroom_speaker" },
       { id: "master",   name: "Master Bedroom",  entity: "media_player.master_bedroom_2_2" },
     ],
-    /* One-tap radio presets (kitchen music browser → Radio tab). Each entry is
-       just a station name searched via music_assistant (radio) and the top hit
-       is played — needs the free "Radio Browser" provider enabled in Music
-       Assistant. Edit freely; reorder/rename to taste. */
+    /* One-tap radio presets (kitchen music browser → Radio tab). Needs the free
+       "Radio Browser" music source enabled in Music Assistant. Each entry has a
+       pinned `uri` (the exact SA station, verified 2026-06-20) so it plays
+       instantly and always the right station — Radio Browser is global, so
+       searching a bare name like "Metro FM" or "702" returns foreign namesakes.
+       An entry may instead be a plain string (or omit `uri`) to fall back to a
+       name search (top hit). Add more: search the station in the Radio tab, or
+       ask and I'll pin the URI. SABC stations (5FM/Metro FM/SAfm/RSG) + SA
+       Classic FM are not in the Radio Browser catalog. */
     radioPresets: [
-      "Jacaranda FM", "947", "5FM", "Metro FM", "KFM 94.5", "East Coast Radio",
-      "Radio 702", "SAfm", "Gagasi FM", "RSG", "Smile 90.4 FM", "Classic FM",
+      { name: "Jacaranda FM",     uri: "radiobrowser://radio/9614225b-0601-11e8-ae97-52543be04c81" },
+      { name: "947",              uri: "radiobrowser://radio/e0ed999c-584b-4441-b501-e9895f3b0914" },
+      { name: "KFM 94.5",         uri: "radiobrowser://radio/e16917b6-abaa-11ea-b5d3-52543be04c81" },
+      { name: "East Coast Radio", uri: "radiobrowser://radio/7881d719-bae9-407d-912c-f75174c43403" },
+      { name: "Radio 702",        uri: "radiobrowser://radio/96192d12-0601-11e8-ae97-52543be04c81" },
+      { name: "Gagasi FM",        uri: "radiobrowser://radio/489e2233-2d46-4998-97ed-5708a0b06a7c" },
+      { name: "Smile 90.4 FM",    uri: "radiobrowser://radio/bf94b075-7a8b-4849-8f9e-d7e94add043b" },
     ],
   },
 
